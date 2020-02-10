@@ -1,160 +1,123 @@
-var loaderSceneConfig = {
-    key: 'loader',
-    active: true,
-    preload: bootLoader,
-    create: bootCreate
-};
+var Boot = new Phaser.Class({
+    Extends: Phaser.Scene,
+    initialize: function Boot() {
+        Phaser.Scene.call(this, {key: 'boot', active: true});
+    },
+    preload: function () {
+        this.load.image('background', 'assets/environment/back.png');
+        this.load.image('menu-background', 'assets/menu/menu-back.png');
+        this.load.image('play-btn', 'assets/menu/play-btn.png');
+        this.load.image('options-btn', 'assets/menu/options-btn.png');
+        this.load.image('options-background', 'assets/menu/options-back.png');
+        this.load.image('close-btn', 'assets/menu/close-btn.png');
+        this.load.image('exit-btn', 'assets/menu/exit-btn.png');
+        this.load.image('player1', 'assets/menu/player-1.png');
+        this.load.image('player2', 'assets/menu/player-2.png');
+        this.load.image('champion-select-background', 'assets/menu/champion-select-back.png');
+        this.load.image('yannie-btn', 'assets/menu/yannie-btn.png');
+        this.load.image('brannie-btn', 'assets/menu/brannie-btn.png');
+    },
+    create: function () {
+        this.background = this.add.tileSprite(config.scale.width / 2, config.scale.height / 2, config.scale.width, config.scale.height, 'background');
 
-var demoSceneConfig = {
-    key: 'demo',
-    active: false,
-    visible: false,
-    preload: preload,
-    create: create,
-    extend: {
-        startDemo: startDemo
+        this.menu_background = this.add.image(config.scale.width / 2, config.scale.height / 2, 'menu-background');
+        this.play_btn = this.add.image(config.scale.width / 2, 70, 'play-btn').setInteractive();
+        this.options_btn = this.add.image(config.scale.width / 2, 100, 'options-btn').setInteractive();
+        this.exit_btn = this.add.image(config.scale.width / 2, 130, 'exit-btn').setInteractive();
+
+        this.player1 = this.add.image(config.scale.width / 2 - 40, 145, 'player1');
+        this.player2 = this.add.image(config.scale.width / 2 + 40, 145, 'player2');
+
+        this.menu_overlay = this.add.graphics().setVisible(false);
+        this.menu_overlay.fillRect(0, 0, config.scale.width, config.scale.height, 0x000000);
+        this.menu_overlay.fillStyle(0x000000, 0.3);
+
+        this.options_background = this.add.image(config.scale.width / 2, config.scale.height / 2, 'options-background').setVisible(false);
+
+        this.champion_select_background = this.add.image(config.scale.width / 2, config.scale.height / 2, 'champion-select-background').setVisible(false);
+        this.yannie_btn = this.add.image(config.scale.width / 2 + 20, config.scale.height / 2 - 10, 'yannie-btn').setVisible(false).setInteractive();
+        this.brannie_btn = this.add.image(config.scale.width / 2 + 20, config.scale.height / 2 + 25, 'brannie-btn').setVisible(false).setInteractive();
+        this.yannie_image = this.add.image(config.scale.width / 2 - 40, config.scale.height / 2 - 15, 'player2').setVisible(false);
+        this.brannie_image = this.add.image(config.scale.width / 2 - 35, config.scale.height / 2 + 15, 'player1').setVisible(false);
+
+        this.close_btn = this.add.image(config.scale.width / 2, 152, 'close-btn').setVisible(false).setInteractive();
+
+        this.play_btn.on('pointerdown', this.openChampionSelectMenu, this);
+        this.options_btn.on('pointerdown', this.openOptionsMenu, this);
+        this.close_btn.on('pointerdown', this.closeOpenedMenu, this);
+        this.exit_btn.on('pointerdown', this.exitGame, this);
+        this.input.keyboard.on('keydown-ESC', this.closeOpenedMenu, this);
+
+        this.yannie_btn.on('pointerdown', function () {
+            this.play('yannie')
+        }, this);
+
+        this.brannie_btn.on('pointerdown', function () {
+            this.play('brannie');
+        }, this);
+    },
+    update: function (time, delta) {
+        this.background.tilePositionX += delta * 0.02;
+    },
+    openOptionsMenu: function () {
+        this.menu_overlay.setVisible(true);
+        this.close_btn.setVisible(true);
+
+        this.options_background.setVisible(true);
+    },
+    closeOptionsMenu: function () {
+        this.menu_overlay.setVisible(false);
+        this.close_btn.setVisible(false);
+
+        this.options_background.setVisible(false);
+    },
+    openChampionSelectMenu: function () {
+        this.menu_overlay.setVisible(true);
+        this.close_btn.setVisible(true);
+
+        this.champion_select_background.setVisible(true);
+        this.yannie_btn.setVisible(true);
+        this.brannie_btn.setVisible(true);
+        this.yannie_image.setVisible(true);
+        this.brannie_image.setVisible(true);
+    },
+    closeChampionSelectMenu: function () {
+        this.menu_overlay.setVisible(false);
+        this.close_btn.setVisible(false);
+
+        this.champion_select_background.setVisible(false);
+        this.yannie_btn.setVisible(false);
+        this.brannie_btn.setVisible(false);
+        this.yannie_image.setVisible(false);
+        this.brannie_image.setVisible(false);
+    },
+    exitGame: function () {
+        window.location = './index.html';
+    },
+    closeOpenedMenu: function () {
+        if (this.options_background.visible) {
+            this.closeOptionsMenu();
+        }
+
+        if (this.champion_select_background.visible) {
+            this.closeChampionSelectMenu();
+        }
+    },
+    play: function (character) {
+        alert('play with ' + character);
     }
-};
+});
 
 var config = {
     type: Phaser.AUTO,
-    parent: 'game',
-    width: 640,
-    height: 338,
-    scene: [ loaderSceneConfig, demoSceneConfig ]
+    backgroundColor: '#000000',
+    scene: [Boot],
+    scale: {
+        mode: Phaser.Scale.FIT,
+        parent: 'game',
+        width: 288,
+        height: 192
+    },
 };
 
-var track;
-var bird;
-var egg = 0;
-var chick1;
-var chick2;
-var chick3;
-var loadImage;
-
 var game = new Phaser.Game(config);
-
-function bootLoader ()
-{
-    this.load.image('loader', 'assets/demoscene/birdy-nam-nam-loader.png');
-    this.load.image('click', 'assets/demoscene/birdy-nam-nam-click.png');
-}
-
-function bootCreate ()
-{
-    this.scene.start('demo');
-}
-
-function preload ()
-{
-    loadImage = this.add.image(0, 0, 'loader').setOrigin(0);
-
-    this.load.audio('jungle', [ 'assets/audio/jungle.ogg', 'assets/audio/jungle.mp3' ]);
-    this.load.animation('birdyAnims', 'assets/demoscene/birdy.json');
-    this.load.image('bg1', 'assets/demoscene/birdy-nam-nam-bg1.png');
-    this.load.image('bg2', 'assets/demoscene/birdy-nam-nam-bg2.png');
-    this.load.atlas('birdy', 'assets/demoscene/budbrain.png', 'assets/demoscene/budbrain.json');
-}
-
-function create ()
-{
-    this.sound.pauseOnBlur = false;
-
-    track = this.sound.add('jungle');
-
-    this.anims.create({
-        key: 'lay',
-        frames: this.anims.generateFrameNames('birdy', { prefix: 'lay', start: 0, end: 19 }),
-        frameRate: 28,
-        delay: 1
-    });
-
-    if (this.sound.locked)
-    {
-        loadImage.setTexture('click');
-
-        this.sound.once('unlocked', function ()
-        {
-            this.startDemo();
-        }, this);
-    }
-    else
-    {
-        this.startDemo();
-    }
-}
-
-function startDemo ()
-{
-    loadImage.setVisible(false);
-
-    this.add.image(0, 0, 'bg1').setOrigin(0);
-
-    bird = this.add.sprite(328, 152, 'birdy', 'lay0').setOrigin(0).setDepth(10);
-
-    bird.on('animationcomplete', dropEgg, this);
-
-    track.once('play', function ()
-    {
-        bird.anims.delayedPlay(2250, 'lay');
-    });
-
-    track.play();
-}
-
-function dropEgg ()
-{
-    var smallEgg = this.add.image(bird.x + 116, 228, 'birdy', 'egg-small').setOrigin(0);
-
-    this.tweens.add({
-        targets: smallEgg,
-        y: 288,
-        ease: 'Linear',
-        delay: 800,
-        duration: 200,
-        completeDelay: 800,
-        onComplete: moveBird,
-        callbackScope: this
-    });
-
-    egg++;
-}
-
-function moveBird ()
-{
-    if (egg < 3)
-    {
-        bird.x -= 124;
-
-        bird.play('lay');
-    }
-    else
-    {
-        //  Ready for scene 2
-        this.time.addEvent({ delay: 800, callback: changeScene, callbackScope: this });
-    }
-}
-
-function changeScene ()
-{
-    this.children.removeAll();
-
-    this.add.image(0, 0, 'bg2').setOrigin(0);
-
-    chick1 = this.add.sprite(100, 72, 'birdy', 'hatch1').setOrigin(0);
-    chick2 = this.add.sprite(260, 72, 'birdy', 'hatch1').setOrigin(0);
-    chick3 = this.add.sprite(420, 72, 'birdy', 'hatch1').setOrigin(0);
-
-    chick1.anims.delayedPlay(1000-200, 'hatch');
-    chick2.anims.delayedPlay(2000-200, 'hatch');
-    chick3.anims.delayedPlay(3000-200, 'hatch');
-
-    this.time.addEvent({ delay: 4500, callback: checkDisOut, callbackScope: this });
-}
-
-function checkDisOut ()
-{
-    chick1.anims.play('lookRight');
-    chick2.anims.play('checkDisOut');
-    chick3.anims.play('lookLeft');
-}
