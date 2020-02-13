@@ -6,12 +6,16 @@
     <title>Phaser game</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
     <link href="assets/css/style.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Raleway&display=swap" rel="stylesheet">
 </head>
-<body class="text-center">
+<body class="text-center design">
+<div class="header-overlay"></div>
 <div class="cover-container d-flex w-100 h-100 p-3 mx-auto flex-column">
     <header class="masthead mb-auto">
         <div class="inner">
-            <h3 class="masthead-brand">Yannie & Brannie</h3>
+            <h3 class="masthead-brand">
+                <img src="./assets/images/logo.png">&nbsp;Yannie & Brannie
+            </h3>
             <nav class="nav nav-masthead justify-content-center">
                 <a class="nav-link" href="index.html">Home</a>
                 <a class="nav-link" href="game.html">Game</a>
@@ -21,85 +25,130 @@
         </div>
     </header>
 
-    <main role="main" class="inner cover">
-        <h1 class="cover-heading">Game design</h1>
-        <p class="lead">Yannie & Brannie is a 2D platform-adventure game designed for Web Games Development 2 course in Computer Games Development final year. On this page you will find information on the game design, inital game idea and concept, assets used in the game and more..</p>
-        <h1>Game Overview</h1>
-        <p>Yannie & Brannie presents a 2D multiplayer platform-adventure pixel art game in the style of Super Mario. The players in the game will choose between two main characters – a fox and a squirrel (Yannie and Brannie respectively), and will then further explore thematic levels. The main goal of the game is to reach the end of each level by passing different obstacles and unlocking doors in teamwork.
-            The game is developed using the Phaser framework for creating browser games and its targeted audience is children and teenagers from 10 to 15 years old. However, anyone can feel free to play and enjoy the game. </p>
-        <h1>Concept</h1>
-        <p>The main game idea aims to provide players with opportinuty to play an adventurous platform game together and help each other reach the end of each level. The main obstacles in the game take form of locked doors which players need to unlock by collaborating with each other. Furthermore, players will encounter enemies and will need to use strategy moves in order to reach the end of the level.
-
-            3 GAMES THAT INSPIRED YANNIE & BRANNIE </p>
-        <img src="assets/SS/StarWars.jpg" alt="Star Wars" height="250" width="450" >
-        <p>* LEGO Star Wars: The Video Game - This Lego-themed, action-adventure video game was released in 2005 for PC following the story from Star Wars: Episode 1. The game allows two players to play on the same computer and assist each other on trying to fight droids, unlock doors and pass through different obstacles. Players are allowed to unlock and play different heroes from the saga (Obi-Wan, Qui-Gon Jinn, Padme, R2D2, C-3PO and others) and change through already unlocked heroes while in-game in order to use their special abilities. Although not a 2D genre, the game is similar to Yannie & Brannie in means of using a group effort to pass each level.</p>
-        <img src="assets/SS/IbbAndObb.jpg" alt="Ibb and Obb" height="250" width="450" >
-        <p>* Ibb & Obb – Another team-based oriented game is the puzzle platform video game developed by Sparpweed Games for PS3 and Windows. In the game two players collaborate in a world where gravity goes both ways (up and down) in order to get each other through each level. The game is focused on team play and strategy which is the main inspiration behind the planned for this project game.</p>
-        <img src="assets/SS/SuperMario.jpg" alt="Star Wars" height="250" width="450" >
-        <p>* Super Mario – This famous platform video game series was created by Nintendo and first released in 1985. The game follows the adventure of Mario (Nintendo’s mascot) in the fictional Mushroom Kingdom as the player can run and jump across platforms and enemies in order to pass each level. The player mechanics in Yannie & Brannie are inspired from Super Mario because of their simplicity and ability to make the player feel freedom while moving across levels and kill enemies. </p>
-        <h1>Characters</h1>
-        <p>The game allows players to choose between two main characters – Yannie the Fox and Brannie the Squirrel.</p>
-        <img src="assets/SS/player-2.png" alt="Yannie" height="250" width="450" >
-        <img src="assets/SS/player-1.png" alt="Brannie" height="250" width="450" >
-        <p>Enemies in the game are presented by different wild animals such as ants, dragons, eagle, frogs, and opossum. </p>
-        <img src="assets/SS/enemies.png" alt="Enemies" height="250" width="450" >
-        <h1>Gameplay and Mechanics </h1>
-        <p>The game consists of three scenes – menu scene, in-game scene, and game over scene. In the menu scene the player will be able to start playing the game and choose his character, read the game instructions and/or exit the game.
-            Once in-game the players enter a level full of obstacles including different enemies and doors that need to be unlocked. Each player has a total of three lives. If a player loses all of his lives the level will be restarted (applies to both players) and they have to start from the beginning. The main goal of the game is to take Yannie and Brannie throughout the level to their home (represented by a beautiful pixel art house). The level is then considered completed and the players are presented their respective players’ score and they can then continue to the next level of the game or return to the menu scene. The game consist of two levels and more will be added in future development.
-            The game aims to provide adventurous and enjoyable environment where players can dive into in their free time and work together towards a common goal as well as explore thematic levels and use their strategy skills.
-        </p>
-        <p>•	Player movement – while in game players will be able to move with the arrow keys on the keyboard and jump with the spacebar. This limited player movement is inspired from games such as Super Mario where players do not need to aim and shoot at enemies and/or use special combat mechanics to kill them.
-
-            •	Killing enemies – enemies in the game take form of different wild animals such as ants, dragons, eagle, frogs, and opossums. Players can kill enemies by jumping onto them. If players collide with enemies in another way one life per collision will be taken from the respective player.
-
-            •	Unlocking doors – players need to unlock doors in order to reach the end of the level. This system is designed to work in the following way: keys for each door will be spread across the level for the players to find. After obtaining the keys (one key per player), the players need to trigger specific bolts at the same time by pressing the “X” key on the keyboard and the respective door will then open.
-        </p>
-        <h1>Game Features</h1>
-        <p>•	Multiplayer - the game is planned to feature multiplayer properties. However, a maximum of two users will be able to play the game together as taking the roles of Yannie the Fox and Brannie the Squirrel respectively.
-
-            •	Champion select – before starting the game players will be able to choose which characters to control in the game. This will happen in a champion select lobby once the players connect to the same server and hit play.
-
-            •	Unlocking doors – in order to reach the end of the level and take Yannie and Brannie home, players will need to figure out how to unlock all the doors on the way together. This feature aims to instigate player’s strategy skills and guide the game to a more team-based direction.
-
-            •	Checkpoints – while in game players will be able to save their progress by using a checkpoint system. If the player has passed a checkpoint, they will be returned to that point of the level in case of death.
-
-            •	Future development features – additional futures will be added in future development to make the game more rich and interesting such as chat/voice chat systems to help players communicate and collaborate with each other.  Another possible features are implementing boss enemy combats, multiplayer for over two clients, and a saving progress system which players can use to save their level and/or in game progress for future.
-        </p>
-        <h1>Assets</h1>
-        <p>The assets for the game are downloaded from the Unity Asset store where many free assets can be found.
-
-            •	Character assets
-            The main characters of the game are Yannie the Fox and Brannie the Squirrel and Both have sprite sheet animations for Idle, Run, Jump, Crouch, and Hurt.
-        </p>
-        <img src="assets/SS/YannieAndBrannieSpriteSheet.png" alt="Yannie&Brannie" height="250" width="450" >
-        <p>•	Environmental assets
-
-            The environmental assets include tiles for creating a platform level, background images, trees, houses, doors, and more decorating assets such as crates, stones, mushrooms, spikes, signs, skulls, and others.
-        </p>
-        <img src="assets/SS/sprites1.png" alt="Yannie&Brannie" height="250" width="450" >
-        <img src="assets/SS/sprites2.png" alt="Yannie&Brannie" height="250" width="450" >
-        <p>•	UI assets
-
-            The UI assets are designed to aesthetically fit the pixel art style of the game. They include HUD assets, buttons and other menu assets.
-        </p>
-        <img src="assets/SS/HUDasset.png" alt="Yannie&Brannie" height="250" width="450" >
-        <img src="assets/SS/menuAsset.png" alt="Yannie&Brannie" height="250" width="450" >
-        <img src="assets/SS/noticeAsset.png" alt="Yannie&Brannie" height="250" width="450" >
-        <p>•	Collectables
-
-            Collectables in the game will include gems, cherries, and acorns. Each gem collected will result on plus 10 points for the player, and cherries and acorns will increase the players’ lives respectively (cherries increase the number of lives of Yannie the Fox and acorns increase the number of lives of Brannie the squirrel).
-        </p>
-        <img src="assets/SS/diamons.png" alt="Yannie&Brannie" height="250" width="450" >
-        <p>•	Sound assets
-
-            The sound assets for the game will be downloaded from www.freesound.org – a website that offers free sounds and music themes. The assets will be chosen carefully to fit the game aesthetics.
-        </p>
-        <h1>Conclusion</h1>
-        <p>Yannie and Brannie is a 2D multiplayer platform-adventure game created on Phaser 3 Seku. The game aims to give players the opportunity to enjoy playing together and use strategy moves in order to pass each level and enjoy a pixel art atmosphere similar to the famous Super Mario series. THe game, the website, and the promotional video for this project are developed using:  </p>
-        * HTML5, JavaScript, Bootstrap
-        * Phaser
-        * Adobe Photoshop, Adobe Premiere Pro
-        <h1>Enjoy the game!</h1>
+    <main role="main" class="inner cover text-justify">
+        <div class="container-fluid bg-dark rounded-lg" style="border: 3px solid white;">
+            <div class="row">
+                <div class="col-12 mt-3">
+                    <h1 class="cover-heading">Game design</h1>
+                    <p class="lead">Yannie & Brannie is a 2D platform-adventure game designed for Web Games Development 2 course in Computer Games Development final year. On this page you will find information on the game design, inital game idea and concept, assets used in the game and more..</p>
+                </div>
+                <div class="col-12 mt-3">
+                    <h1>Game Overview</h1>
+                    <p>Yannie & Brannie presents a 2D multiplayer platform-adventure pixel art game in the style of Super Mario. The players in the game will choose between two main characters – a fox and a squirrel (Yannie and Brannie respectively), and will then further explore thematic levels. The main goal of the game is to reach the end of each level by passing different obstacles and unlocking doors in teamwork.
+                        The game is developed using the Phaser framework for creating browser games and its targeted audience is children and teenagers from 10 to 15 years old. However, anyone can feel free to play and enjoy the game. </p>
+                </div>
+                <div class="col-12 mt-3">
+                    <h1>Concept</h1>
+                    <p>The main game idea aims to provide players with opportinuty to play an adventurous platform game together and help each other reach the end of each level. The main obstacles in the game take form of locked doors which players need to unlock by collaborating with each other. Furthermore, players will encounter enemies and will need to use strategy moves in order to reach the end of the level.</p>
+                    <h3>3 GAMES THAT INSPIRED YANNIE & BRANNIE:</h3>
+                </div>
+                <div class="col-12 col-sm-6 mt-3">
+                    <ul class="pl-3">
+                        <li>LEGO Star Wars: The Video Game - This Lego-themed, action-adventure video game was released in 2005 for PC following the story from Star Wars: Episode 1. The game allows two players to play on the same computer and assist each other on trying to fight droids, unlock doors and pass through different obstacles. Players are allowed to unlock and play different heroes from the saga (Obi-Wan, Qui-Gon Jinn, Padme, R2D2, C-3PO and others) and change through already unlocked heroes while in-game in order to use their special abilities. Although not a 2D genre, the game is similar to Yannie & Brannie in means of using a group effort to pass each level.</li>
+                    </ul>
+                </div>
+                <div class="col-12 col-sm-6 mt-3">
+                    <img class="img-fluid" src="assets/SS/StarWars.jpg" alt="Star Wars">
+                </div>
+                <div class="col-12 col-sm-6 mt-3">
+                    <ul class="pl-3">
+                        <li>Ibb & Obb – Another team-based oriented game is the puzzle platform video game developed by Sparpweed Games for PS3 and Windows. In the game two players collaborate in a world where gravity goes both ways (up and down) in order to get each other through each level. The game is focused on team play and strategy which is the main inspiration behind the planned for this project game.</li>
+                    </ul>
+                </div>
+                <div class="col-12 col-sm-6 mt-3">
+                    <img class="img-fluid" src="assets/SS/IbbAndObb.jpg" alt="Ibb and Obb">
+                </div>
+                <div class="col-12 col-sm-6 mt-3">
+                    <ul class="pl-3">
+                        <li>Super Mario – This famous platform video game series was created by Nintendo and first released in 1985. The game follows the adventure of Mario (Nintendo’s mascot) in the fictional Mushroom Kingdom as the player can run and jump across platforms and enemies in order to pass each level. The player mechanics in Yannie & Brannie are inspired from Super Mario because of their simplicity and ability to make the player feel freedom while moving across levels and kill enemies.</li>
+                    </ul>
+                </div>
+                <div class="col-12 col-sm-6 mt-3">
+                    <img class="img-fluid" src="assets/SS/SuperMario.jpg" alt="Star Wars">
+                </div>
+                <div class="col-12 mt-3">
+                    <h1>Characters</h1>
+                    <p>The game allows players to choose between two main characters – Yannie the Fox and Brannie the Squirrel.</p>
+                    <img class="img-fluid" src="assets/SS/player-2.png" alt="Yannie">
+                    <img class="img-fluid" src="assets/SS/player-1.png" alt="Brannie">
+                    <p>Enemies in the game are presented by different wild animals such as ants, dragons, eagle, frogs, and opossum. </p>
+                    <img class="img-fluid" src="assets/SS/enemies.png" alt="Enemies">
+                </div>
+                <div class="col-12 mt-3">
+                    <h1>Gameplay and Mechanics </h1>
+                    <p>The game consists of three scenes – menu scene, in-game scene, and game over scene. In the menu scene the player will be able to start playing the game and choose his character, read the game instructions and/or exit the game.</p>
+                    <p>Once in-game the players enter a level full of obstacles including different enemies and doors that need to be unlocked. Each player has a total of three lives. If a player loses all of his lives the level will be restarted (applies to both players) and they have to start from the beginning. The main goal of the game is to take Yannie and Brannie throughout the level to their home (represented by a beautiful pixel art house). The level is then considered completed and the players are presented their respective players’ score and they can then continue to the next level of the game or return to the menu scene. The game consist of two levels and more will be added in future development.</p>
+                    <p>The game aims to provide adventurous and enjoyable environment where players can dive into in their free time and work together towards a common goal as well as explore thematic levels and use their strategy skills.</p>
+                    <ul class="pl-3">
+                        <li>Player movement – while in game players will be able to move with the arrow keys on the keyboard and jump with the spacebar. This limited player movement is inspired from games such as Super Mario where players do not need to aim and shoot at enemies and/or use special combat mechanics to kill them.</li>
+                        <li>Killing enemies – enemies in the game take form of different wild animals such as ants, dragons, eagle, frogs, and opossums. Players can kill enemies by jumping onto them. If players collide with enemies in another way one life per collision will be taken from the respective player.</li>
+                        <li>Unlocking doors – players need to unlock doors in order to reach the end of the level. This system is designed to work in the following way: keys for each door will be spread across the level for the players to find. After obtaining the keys (one key per player), the players need to trigger specific bolts at the same time by pressing the “X” key on the keyboard and the respective door will then open.</li>
+                    </ul>
+                </div>
+                <div class="col-12 mt-3">
+                    <h1>Game Features</h1>
+                    <ul class="pl-3">
+                        <li><strong>Multiplayer</strong> - the game is planned to feature multiplayer properties. However, a maximum of two users will be able to play the game together as taking the roles of Yannie the Fox and Brannie the Squirrel respectively.</li>
+                        <li>Champion select – before starting the game players will be able to choose which characters to control in the game. This will happen in a champion select lobby once the players connect to the same server and hit play.</li>
+                        <li>Unlocking doors – in order to reach the end of the level and take Yannie and Brannie home, players will need to figure out how to unlock all the doors on the way together. This feature aims to instigate player’s strategy skills and guide the game to a more team-based direction.</li>
+                        <li>Checkpoints – while in game players will be able to save their progress by using a checkpoint system. If the player has passed a checkpoint, they will be returned to that point of the level in case of death.</li>
+                        <li>Future development features – additional futures will be added in future development to make the game more rich and interesting such as chat/voice chat systems to help players communicate and collaborate with each other.  Another possible features are implementing boss enemy combats, multiplayer for over two clients, and a saving progress system which players can use to save their level and/or in game progress for future.</li>
+                    </ul>
+                </div>
+                <div class="col-12 mt-3">
+                    <h1>Assets</h1>
+                    <p>The assets for the game are downloaded from the Unity Asset store where many free assets can be found.</p>
+                </div>
+                <div class="col-12 col-sm-6 mt-3">
+                    <ul class="pl-3">
+                        <li>Character assets</li>
+                    </ul>
+                    <p>The main characters of the game are Yannie the Fox and Brannie the Squirrel and Both have sprite sheet animations for Idle, Run, Jump, Crouch, and Hurt.</p>
+                </div>
+                <div class="col-12 col-sm-6 mt-3">
+                    <img class="img-fluid" src="assets/SS/YannieAndBrannieSpriteSheet.png" alt="Yannie&Brannie">
+                </div>
+                <div class="col-12 mt-3">
+                    <ul class="pl-3">
+                        <li>Environmental assets</li>
+                    </ul>
+                    <p>The environmental assets include tiles for creating a platform level, background images, trees, houses, doors, and more decorating assets such as crates, stones, mushrooms, spikes, signs, skulls, and others.</p>
+                </div>
+                <div class="col-12 col-sm-6 mt-3">
+                    <img class="img-fluid" src="assets/SS/sprites1.png" alt="Yannie&Brannie">
+                </div>
+                <div class="col-12 col-sm-6 mt-3">
+                    <img class="img-fluid" src="assets/SS/sprites2.png" alt="Yannie&Brannie">
+                </div>
+                <div class="col-12 col-sm-6 mt-3">
+                    <ul class="pl-3">
+                        <li>Collectables</li>
+                    </ul>
+                    <p>Collectables in the game will include gems, cherries, and acorns. Each gem collected will result on plus 10 points for the player, and cherries and acorns will increase the players’ lives respectively (cherries increase the number of lives of Yannie the Fox and acorns increase the number of lives of Brannie the squirrel).</p>
+                </div>
+                <div class="col-12 col-sm-6 mt-3">
+                    <img class="img-fluid" src="assets/SS/diamons.png" alt="Yannie&Brannie">
+                </div>
+                <div class="col-12 col-sm-6 mt-3">
+                    <ul class="pl-3">
+                        <li>Sound assets</li>
+                    </ul>
+                    <p>The sound assets for the game will be downloaded from www.freesound.org – a website that offers free sounds and music themes. The assets will be chosen carefully to fit the game aesthetics.</p>
+                </div>
+                <div class="col-12 mt-3">
+                    <h1>Conclusion</h1>
+                    <p>Yannie and Brannie is a 2D multiplayer platform-adventure game created on Phaser 3 Seku. The game aims to give players the opportunity to enjoy playing together and use strategy moves in order to pass each level and enjoy a pixel art atmosphere similar to the famous Super Mario series. THe game, the website, and the promotional video for this project are developed using:</p>
+                    <ul>
+                        <li>HTML5, JavaScript, Bootstrap</li>
+                        <li>Phaser</li>
+                        <li>Adobe Photoshop, Adobe Premiere Pro</li>
+                    </ul>
+                </div>
+                <div class="col-12 mt-3 text-center">
+                    <h1>Enjoy the game!</h1>
+                </div>
+            </div>
+        </div>
     </main>
 
     <footer class="mastfoot mt-auto">
