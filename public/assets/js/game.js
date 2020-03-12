@@ -1,5 +1,19 @@
 var Boot = new Phaser.Class({
     Extends: Phaser.Scene,
+    background: null,
+    menu_background: null,
+    play_btn: null,
+    options_btn: null,
+    exit_btn: null,
+    player1: null,
+    player2: null,
+    menu_overlay: null,
+    options_background: null,
+    champion_select_background: null,
+    yannie_btn: null,
+    brannie_btn: null,
+    yannie_image: null,
+    brannie_image: null,
     initialize: function Boot() {
         Phaser.Scene.call(this, {key: 'boot', active: true});
     },
@@ -18,29 +32,28 @@ var Boot = new Phaser.Class({
         this.load.image('brannie-btn', 'assets/menu/brannie-btn.png');
     },
     create: function () {
-        this.background = this.add.tileSprite(config.width / 2, config.height / 2, config.width, config.height, 'background');
+        this.background = this.add.tileSprite(config.scale.width / 2, config.scale.height / 2, config.scale.width, config.scale.height, 'background');
+        this.menu_background = this.add.image(config.scale.width / 2, config.scale.height / 2, 'menu-background');
+        this.play_btn = this.add.image(config.scale.width / 2, 70, 'play-btn').setInteractive();
+        this.options_btn = this.add.image(config.scale.width / 2, 100, 'options-btn').setInteractive();
+        this.exit_btn = this.add.image(config.scale.width / 2, 130, 'exit-btn').setInteractive();
 
-        this.menu_background = this.add.image(config.width / 2, config.height / 2, 'menu-background');
-        this.play_btn = this.add.image(config.width / 2, 70, 'play-btn').setInteractive();
-        this.options_btn = this.add.image(config.width / 2, 100, 'options-btn').setInteractive();
-        this.exit_btn = this.add.image(config.width / 2, 130, 'exit-btn').setInteractive();
-
-        this.player1 = this.add.image(config.width / 2 - 40, 145, 'player1');
-        this.player2 = this.add.image(config.width / 2 + 40, 145, 'player2');
+        this.player1 = this.add.image(config.scale.width / 2 - 40, 145, 'player1');
+        this.player2 = this.add.image(config.scale.width / 2 + 40, 145, 'player2');
 
         this.menu_overlay = this.add.graphics().setVisible(false);
-        this.menu_overlay.fillRect(0, 0, config.width, config.height, 0x000000);
+        this.menu_overlay.fillRect(0, 0, config.scale.width, config.scale.height, 0x000000);
         this.menu_overlay.fillStyle(0x000000, 0.3);
 
-        this.options_background = this.add.image(config.width / 2, config.height / 2, 'options-background').setVisible(false);
+        this.options_background = this.add.image(config.scale.width / 2, config.scale.height / 2, 'options-background').setVisible(false);
 
-        this.champion_select_background = this.add.image(config.width / 2, config.height / 2, 'champion-select-background').setVisible(false);
-        this.yannie_btn = this.add.image(config.width / 2 + 20, config.height / 2 - 10, 'yannie-btn').setVisible(false).setInteractive();
-        this.brannie_btn = this.add.image(config.width / 2 + 20, config.height / 2 + 25, 'brannie-btn').setVisible(false).setInteractive();
-        this.yannie_image = this.add.image(config.width / 2 - 40, config.height / 2 - 15, 'player2').setVisible(false);
-        this.brannie_image = this.add.image(config.width / 2 - 35, config.height / 2 + 15, 'player1').setVisible(false);
+        this.champion_select_background = this.add.image(config.scale.width / 2, config.scale.height / 2, 'champion-select-background').setVisible(false);
+        this.yannie_btn = this.add.image(config.scale.width / 2 + 20, config.scale.height / 2 - 10, 'yannie-btn').setVisible(false).setInteractive();
+        this.brannie_btn = this.add.image(config.scale.width / 2 + 20, config.scale.height / 2 + 25, 'brannie-btn').setVisible(false).setInteractive();
+        this.yannie_image = this.add.image(config.scale.width / 2 - 40, config.scale.height / 2 - 15, 'player2').setVisible(false);
+        this.brannie_image = this.add.image(config.scale.width / 2 - 35, config.scale.height / 2 + 15, 'player1').setVisible(false);
 
-        this.close_btn = this.add.image(config.width / 2, 152, 'close-btn').setVisible(false).setInteractive();
+        this.close_btn = this.add.image(config.scale.width / 2, 152, 'close-btn').setVisible(false).setInteractive();
 
         this.play_btn.on('pointerdown', this.openChampionSelectMenu, this);
         this.options_btn.on('pointerdown', this.openOptionsMenu, this);
@@ -92,7 +105,7 @@ var Boot = new Phaser.Class({
         this.brannie_image.setVisible(false);
     },
     exitGame: function () {
-        window.location = './index.html';
+        window.location = '../../index.html';
     },
     closeOpenedMenu: function () {
         if (this.options_background.visible) {
@@ -104,49 +117,90 @@ var Boot = new Phaser.Class({
         }
     },
     play: function (character) {
-        // alert('play with ' + character);
         this.scene.start('game');
     }
 });
 
 var Game = new Phaser.Class({
     Extends: Phaser.Scene,
+    socket: null,
     player: null,
     cursors: null,
-    groundLayer: null,
+    worldLayer: null,
+    skyLayer: null,
+    bushesLayer: null,
     backgroundLayer: null,
+    spikesLayer: null,
+    otherPlayers: null,
     initialize: function Game() {
-        Phaser.Scene.call(this, {key: 'game', active: true});
+        Phaser.Scene.call(this, {key: 'game'});
     },
     preload: function () {
         this.load.tilemapTiledJSON('map', 'assets/environment/map.json');
         this.load.spritesheet('props', 'assets/environment/props.png', {frameWidth: 16, frameHeight: 16});
         this.load.spritesheet('tileset', 'assets/environment/tileset.png', {frameWidth: 16, frameHeight: 16});
+        this.load.spritesheet('middle', 'assets/environment/middle.png', {frameWidth: 16, frameHeight: 16});
+        this.load.spritesheet('wallpaper', 'assets/environment/back.png', {frameWidth: 16, frameHeight: 16});
         this.load.atlas('player', 'assets/player/player.png', 'assets/player/player.json');
     },
     create: function () {
-        var map = this.make.tilemap({key: 'map'});
+        var self = this;
+        this.socket = io();
+        this.otherPlayers = this.physics.add.group();
+
+        this.socket.on('currentPlayers', function (players) {
+            Object.keys(players).forEach(function (id) {
+                if (players[id].playerId === self.socket.id) {
+                    self.addPlayer(players[id]);
+                } else {
+                    self.addOtherPlayer(players[id]);
+                }
+            });
+        });
+
+        this.socket.on('newPlayer', function (playerInfo) {
+            self.addOtherPlayer(playerInfo);
+        });
+
+        this.socket.on('disconnect', function (playerId) {
+            self.otherPlayers.getChildren().forEach(function (otherPlayer) {
+                if (playerId === otherPlayer.playerId) {
+                    otherPlayer.destroy();
+                }
+            });
+        });
+
+        this.socket.on('playerMoved', function (playerInfo) {
+            self.otherPlayers.getChildren().forEach(function (otherPlayer) {
+                if (playerInfo.playerId === otherPlayer.playerId) {
+                    otherPlayer.setRotation(playerInfo.rotation);
+                    otherPlayer.setPosition(playerInfo.x, playerInfo.y);
+                    otherPlayer.setFlipX(playerInfo.flipX);
+                    otherPlayer.anims.play(playerInfo.currentAnim.key, true);
+                }
+            });
+        });
+
+        var map = this.make.tilemap({ key: 'map' });
+        var middle = map.addTilesetImage('middle');
         var props = map.addTilesetImage('props');
         var tileset = map.addTilesetImage('tileset');
+        var wallpaper = map.addTilesetImage('wallpaper');
 
-        this.backgroundLayer = map.createDynamicLayer('Background', [tileset, props]);
-        this.groundLayer = map.createDynamicLayer('World', [tileset, props]);
-        this.groundLayer.setCollisionByExclusion([-1]);
+        this.skyLayer = map.createDynamicLayer('Sky', [middle, props, tileset, wallpaper]);
+        this.bushesLayer = map.createDynamicLayer('Bushes', [middle, props, tileset, wallpaper]);
+        this.backgroundLayer = map.createDynamicLayer('Background', [middle, props, tileset, wallpaper]);
+        this.spikesLayer = map.createDynamicLayer('Spikes', [middle, props, tileset, wallpaper]);
+        this.worldLayer = map.createDynamicLayer('World', [middle, props, tileset, wallpaper]);
 
-        this.physics.world.bounds.width = this.groundLayer.width;
-        this.physics.world.bounds.height = this.groundLayer.height;
+        this.worldLayer.setCollisionByExclusion([-1]);
 
-        this.player = this.physics.add.sprite(150, 175, 'player');
-        this.player.setCollideWorldBounds(true);
-        this.player.body.setSize(14, 19);
-        this.player.body.setOffset(9, 12);
-
-        this.physics.add.collider(this.groundLayer, this.player);
+        this.physics.world.bounds.width = this.worldLayer.width;
+        this.physics.world.bounds.height = this.worldLayer.height;
 
         this.cursors = this.input.keyboard.createCursorKeys();
 
         this.cameras.main.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
-        this.cameras.main.startFollow(this.player);
         this.cameras.main.setBackgroundColor('#ccccff');
 
         this.anims.create({
@@ -178,6 +232,46 @@ var Game = new Phaser.Class({
         });
     },
     update: function (time, delta) {
+        if (!this.player) {
+            return;
+        }
+
+        var x = this.player.x;
+        var y = this.player.y;
+        var rotation = this.player.rotation;
+        var flipX = this.player.flipX;
+        var currentAnim = {
+            key: this.player.anims.currentAnim ? this.player.anims.currentAnim.key : 'idle',
+        };
+
+        if (
+            this.player.oldPosition &&
+            (
+                x !== this.player.oldPosition.x ||
+                y !== this.player.oldPosition.y ||
+                rotation !== this.player.oldPosition.rotation ||
+                flipX !== this.player.oldPosition.flipX ||
+                currentAnim.key !== this.player.oldPosition.currentAnim.key
+            )
+        ) {
+            this.socket.emit('playerMovement', {
+                x: x,
+                y: y,
+                rotation: rotation,
+                flipX: flipX,
+                currentAnim: currentAnim,
+            });
+        }
+
+        // save old position data
+        this.player.oldPosition = {
+            x: x,
+            y: y,
+            rotation: rotation,
+            flipX: flipX,
+            currentAnim: currentAnim,
+        };
+
         var movementSpeed = 100;
         var isOnFloor = this.player.body.onFloor();
         var shouldJump = this.cursors.space.isDown || this.cursors.up.isDown;
@@ -225,13 +319,34 @@ var Game = new Phaser.Class({
             }
         }
     },
+    addPlayer: function (playerInfo) {
+        this.player = this.physics.add.sprite(playerInfo.x, playerInfo.y, 'player');
+        this.player.setCollideWorldBounds(true);
+        this.player.body.setSize(14, 19);
+        this.player.body.setOffset(9, 12);
+
+        this.physics.add.collider(this.worldLayer, this.player);
+        this.cameras.main.startFollow(this.player);
+    },
+    addOtherPlayer: function (playerInfo) {
+        var otherPlayer = this.physics.add.sprite(playerInfo.x, playerInfo.y, 'player');
+
+        otherPlayer.setCollideWorldBounds(true);
+        otherPlayer.body.setSize(14, 19);
+        otherPlayer.body.setOffset(9, 12);
+        otherPlayer.playerId = playerInfo.playerId;
+        otherPlayer.anims.play(playerInfo.currentAnim.key, true);
+
+        this.physics.add.collider(this.worldLayer, otherPlayer);
+
+        this.otherPlayers.add(otherPlayer);
+    }
 });
 
 var config = {
     type: Phaser.AUTO,
     backgroundColor: '#000000',
     scene: [/*Boot, */Game],
-    parent: 'game',
     scale: {
         mode: Phaser.Scale.FIT,
         autoCenter: Phaser.Scale.CENTER_BOTH,
@@ -242,7 +357,9 @@ var config = {
     physics: {
         default: 'arcade',
         arcade: {
-            gravity: {y: 1000},
+            gravity: {
+                y: 1000
+            },
             debug: false
         }
     },

@@ -181,7 +181,7 @@ body.game,
 body.design,
 body.developer
 {
-    background: linear-gradient( rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.2) ), url(./../images/background.png);
+    background: linear-gradient( rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.2) ), url(../images/background.png);
     background-size: cover;
 }
 

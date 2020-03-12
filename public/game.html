@@ -7,18 +7,33 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
     <link href="assets/css/style.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css?family=Raleway&display=swap" rel="stylesheet">
+    <style>
+        .cover-container {
+            max-width: 1024px;
+        }
+
+        .cover {
+            padding: 0;
+        }
+
+        #game{
+            width: calc(288px * 3);
+            height: calc(192px * 3);
+        }
+    </style>
+    <script src="/socket.io/socket.io.js"></script>
 </head>
-<body class="text-center index">
+<body class="text-center game">
 <div class="header-overlay"></div>
 <div class="cover-container d-flex w-100 h-100 p-3 mx-auto flex-column">
     <header class="masthead mb-auto">
         <div class="inner">
             <h3 class="masthead-brand">
-                <img src="./assets/images/logo.png">&nbsp;Yannie & Brannie
+                <img src="assets/images/logo.png">&nbsp;Yannie & Brannie
             </h3>
             <nav class="nav nav-masthead justify-content-center">
-                <a class="nav-link active" href="index.html">Home</a>
-                <a class="nav-link" href="game.html">Game</a>
+                <a class="nav-link" href="index.html">Home</a>
+                <a class="nav-link active" href="game.html">Game</a>
                 <a class="nav-link" href="design.html">Design</a>
                 <a class="nav-link" href="developer.html">Developer</a>
             </nav>
@@ -26,12 +41,7 @@
     </header>
 
     <main role="main" class="inner cover">
-        <h1 class="cover-heading">Yannie & Brannie</h1>
-        <iframe width="640" height="320" src="https://www.youtube.com/embed/example" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="max-width: 100%; border-radius: 10px; border: 3px solid #ac763d; background-color: #ac763d"></iframe>
-        <p class="lead mt-2">Coming sooon!</p>
-        <p class="lead">
-            <a href="game.html" class="btn btn-lg btn-secondary">Play Game</a>
-        </p>
+        <div id="game" class="mx-auto"></div>
     </main>
 
     <footer class="mastfoot mt-auto">
@@ -43,6 +53,8 @@
     <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+    <script src="assets/js/phaser.min.js"></script>
+    <script src="assets/js/game.js"></script>
 </div>
 </body>
 </html>
