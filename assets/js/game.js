@@ -114,6 +114,7 @@ var Game = new Phaser.Class({
     player: null,
     cursors: null,
     groundLayer: null,
+    backgroundLayer: null,
     initialize: function Game() {
         Phaser.Scene.call(this, {key: 'game', active: true});
     },
@@ -128,7 +129,8 @@ var Game = new Phaser.Class({
         var props = map.addTilesetImage('props');
         var tileset = map.addTilesetImage('tileset');
 
-        this.groundLayer = map.createDynamicLayer('World', [tileset, props], 0, 0);
+        this.backgroundLayer = map.createDynamicLayer('Background', [tileset, props]);
+        this.groundLayer = map.createDynamicLayer('World', [tileset, props]);
         this.groundLayer.setCollisionByExclusion([-1]);
 
         this.physics.world.bounds.width = this.groundLayer.width;
@@ -241,7 +243,7 @@ var config = {
         default: 'arcade',
         arcade: {
             gravity: {y: 1000},
-            debug: true
+            debug: false
         }
     },
     pixelArt: true
