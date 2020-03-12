@@ -310,7 +310,7 @@ var Game = new Phaser.Class({
 
         if (shouldJump && isOnFloor) {
             this.player.anims.play('jump', true);
-            this.player.body.setVelocityY(-500);
+            this.player.body.setVelocityY(-400);
         } else if (shouldCrouch && isOnFloor) {
             this.player.anims.play('crouch', true);
 
@@ -326,7 +326,7 @@ var Game = new Phaser.Class({
         this.player.body.setOffset(9, 12);
 
         this.physics.add.collider(this.worldLayer, this.player);
-        this.cameras.main.startFollow(this.player);
+        this.cameras.main.startFollow(this.player, true);
     },
     addOtherPlayer: function (playerInfo) {
         var otherPlayer = this.physics.add.sprite(playerInfo.x, playerInfo.y, 'player');
@@ -360,7 +360,7 @@ var config = {
             gravity: {
                 y: 1000
             },
-            debug: false
+            debug: true
         }
     },
     pixelArt: true
