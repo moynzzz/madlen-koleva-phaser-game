@@ -134,7 +134,7 @@ var Game = new Phaser.Class({
     backgroundLayer: null,
     spikesLayer: null,
     otherPlayers: null,
-    eagle: null,
+    eagles: null,
     initialize: function Game() {
         Phaser.Scene.call(this, {key: 'game'});
     },
@@ -152,7 +152,13 @@ var Game = new Phaser.Class({
         var self = this;
 
         this.socket = io();
-        this.otherPlayers = this.physics.add.group();
+        this.otherPlayers = this.physics.add.group({
+            allowGravity: false
+        });
+        this.eagles = this.physics.add.group({
+            immovable: true,
+            allowGravity: false
+        });
         this.map = this.make.tilemap({ key: 'map' });
         this.spawnPoint = this.map.findObject("Objects", obj => obj.name === "Player Spawn Point");
 
@@ -212,23 +218,12 @@ var Game = new Phaser.Class({
             repeat: -1
         });
 
-        this.eagle = this.physics.add.sprite(100, 203, 'eagle');
-        this.eagle.setCollideWorldBounds(true);
-        this.eagle.setVelocityY(-50);
-        this.physics.add.collider(this.worldLayer, this.eagle);
-
         this.anims.create({
             key: 'fly',
             frames: this.anims.generateFrameNames('eagle', {prefix: 'eagle-attack-', start: 1, end: 4, zeroPad: 1}),
             frameRate: 7,
             repeat: -1
         });
-
-        this.eagle.anims.play('fly', true);
-
-        this.eagle.body.allowGravity = false;
-
-        this.eagle.body.immovable = true;
 
         this.socket.on('currentPlayers', function (players) {
             Object.keys(players).forEach(function (id) {
@@ -259,6 +254,40 @@ var Game = new Phaser.Class({
                     otherPlayer.setPosition(playerInfo.x, playerInfo.y);
                     otherPlayer.setFlipX(playerInfo.flipX);
                     otherPlayer.anims.play(playerInfo.currentAnim.key, true);
+                }
+            });
+        });
+
+        this.socket.on('currentEagles', function (eagles) {
+            Object.keys(eagles).forEach(function (id) {
+                var eagle = self.physics.add.sprite(eagles[id].x, eagles[id].y, 'eagle');
+
+                eagle.flipX = eagles[id].flipX;
+                eagle.setCollideWorldBounds(true);
+                eagle.anims.play('fly', true);
+                eagle.body.allowGravity = false;
+                eagle.body.immovable = true;
+                eagle.eagleId = eagles[id].id;
+
+                self.physics.add.collider(self.worldLayer, eagle);
+
+                self.eagles.add(eagle);
+            });
+        });
+
+        this.socket.on('eaglesMovement', function (eagles) {
+            self.eagles.getChildren().forEach(function (eagle) {
+                eagle.x = eagles[eagle.eagleId].x;
+                eagle.y = eagles[eagle.eagleId].y;
+                eagle.flipX = eagles[eagle.eagleId].flipX;
+            });
+        });
+
+        this.socket.on('eagleKilled', function (eagleData) {
+            self.eagles.getChildren().forEach(function (eagle) {
+                if (eagleData.eagleId === eagle.eagleId) {
+                    self.createEnemyDeath(eagle.x, eagle.y);
+                    eagle.destroy();
                 }
             });
         });
@@ -354,16 +383,6 @@ var Game = new Phaser.Class({
         if (this.player.isHurt) {
             this.player.anims.play('hurt', true);
         }
-
-        if (this.eagle.body) {
-            if (this.eagle.body.onCeiling()) {
-                this.eagle.setVelocityY(50);
-            } else if (this.eagle.body.onFloor()) {
-                this.eagle.setVelocityY(-50);
-            }
-
-            this.eagle.setVelocityX(0);
-        }
     },
     addPlayer: function (playerInfo) {
         var that = this;
@@ -376,8 +395,9 @@ var Game = new Phaser.Class({
         this.physics.add.collider(this.worldLayer, this.player);
         this.cameras.main.startFollow(this.player, true);
 
-        this.physics.add.overlap(this.player, this.eagle, function (player, eagle) {
+        this.physics.add.overlap(this.player, this.eagles, function (player, eagle) {
             if (!player.isHurt && player.body.velocity.y > 0 && player.body.y < eagle.body.y) {
+                that.socket.emit('killEagle', { eagleId: eagle.eagleId });
                 that.createEnemyDeath(eagle.x, eagle.y);
                 eagle.destroy();
                 player.setVelocityY(-200);
