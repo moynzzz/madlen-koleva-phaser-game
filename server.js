@@ -14,8 +14,8 @@ io.on('connection', function (socket) {
     // create a new player and add it to our players object
     players[socket.id] = {
         rotation: 0,
-        x: 150,
-        y: 209,
+        x: 80,
+        y: 224,
         playerId: socket.id,
         flipX: false,
         currentAnim: { key: 'idle' },

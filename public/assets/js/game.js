@@ -125,6 +125,8 @@ var Game = new Phaser.Class({
     Extends: Phaser.Scene,
     socket: null,
     player: null,
+    map: null,
+    spawnPoint: null,
     cursors: null,
     worldLayer: null,
     skyLayer: null,
@@ -148,54 +150,22 @@ var Game = new Phaser.Class({
     },
     create: function () {
         var self = this;
+
         this.socket = io();
         this.otherPlayers = this.physics.add.group();
+        this.map = this.make.tilemap({ key: 'map' });
+        this.spawnPoint = this.map.findObject("Objects", obj => obj.name === "Player Spawn Point");
 
-        this.socket.on('currentPlayers', function (players) {
-            Object.keys(players).forEach(function (id) {
-                if (players[id].playerId === self.socket.id) {
-                    self.addPlayer(players[id]);
-                } else {
-                    self.addOtherPlayer(players[id]);
-                }
-            });
-        });
+        var middle = this.map.addTilesetImage('middle');
+        var props = this.map.addTilesetImage('props');
+        var tileset = this.map.addTilesetImage('tileset');
+        var wallpaper = this.map.addTilesetImage('wallpaper');
 
-        this.socket.on('newPlayer', function (playerInfo) {
-            self.addOtherPlayer(playerInfo);
-        });
-
-        this.socket.on('disconnect', function (playerId) {
-            self.otherPlayers.getChildren().forEach(function (otherPlayer) {
-                if (playerId === otherPlayer.playerId) {
-                    otherPlayer.destroy();
-                }
-            });
-        });
-
-        this.socket.on('playerMoved', function (playerInfo) {
-            self.otherPlayers.getChildren().forEach(function (otherPlayer) {
-                if (playerInfo.playerId === otherPlayer.playerId) {
-                    otherPlayer.setRotation(playerInfo.rotation);
-                    otherPlayer.setPosition(playerInfo.x, playerInfo.y);
-                    otherPlayer.setFlipX(playerInfo.flipX);
-                    otherPlayer.anims.play(playerInfo.currentAnim.key, true);
-                }
-            });
-        });
-
-        var map = this.make.tilemap({ key: 'map' });
-        this.spawnPoint = map.findObject("Objects", obj => obj.name === "Player Spawn Point");
-        var middle = map.addTilesetImage('middle');
-        var props = map.addTilesetImage('props');
-        var tileset = map.addTilesetImage('tileset');
-        var wallpaper = map.addTilesetImage('wallpaper');
-
-        this.skyLayer = map.createDynamicLayer('Sky', [middle, props, tileset, wallpaper]);
-        this.bushesLayer = map.createDynamicLayer('Bushes', [middle, props, tileset, wallpaper]);
-        this.backgroundLayer = map.createDynamicLayer('Background', [middle, props, tileset, wallpaper]);
-        this.spikesLayer = map.createDynamicLayer('Spikes', [middle, props, tileset, wallpaper]);
-        this.worldLayer = map.createDynamicLayer('World', [middle, props, tileset, wallpaper]);
+        this.skyLayer = this.map.createDynamicLayer('Sky', [middle, props, tileset, wallpaper]);
+        this.bushesLayer = this.map.createDynamicLayer('Bushes', [middle, props, tileset, wallpaper]);
+        this.backgroundLayer = this.map.createDynamicLayer('Background', [middle, props, tileset, wallpaper]);
+        this.spikesLayer = this.map.createDynamicLayer('Spikes', [middle, props, tileset, wallpaper]);
+        this.worldLayer = this.map.createDynamicLayer('World', [middle, props, tileset, wallpaper]);
 
         this.worldLayer.setCollisionByExclusion([-1]);
 
@@ -204,7 +174,7 @@ var Game = new Phaser.Class({
 
         this.cursors = this.input.keyboard.createCursorKeys();
 
-        this.cameras.main.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
+        this.cameras.main.setBounds(0, 0, this.map.widthInPixels, this.map.heightInPixels);
         this.cameras.main.setBackgroundColor('#ccccff');
 
         this.anims.create({
@@ -259,6 +229,39 @@ var Game = new Phaser.Class({
         this.eagle.body.allowGravity = false;
 
         this.eagle.body.immovable = true;
+
+        this.socket.on('currentPlayers', function (players) {
+            Object.keys(players).forEach(function (id) {
+                if (players[id].playerId === self.socket.id) {
+                    self.addPlayer(players[id]);
+                } else {
+                    self.addOtherPlayer(players[id]);
+                }
+            });
+        });
+
+        this.socket.on('newPlayer', function (playerInfo) {
+            self.addOtherPlayer(playerInfo);
+        });
+
+        this.socket.on('disconnect', function (playerId) {
+            self.otherPlayers.getChildren().forEach(function (otherPlayer) {
+                if (playerId === otherPlayer.playerId) {
+                    otherPlayer.destroy();
+                }
+            });
+        });
+
+        this.socket.on('playerMoved', function (playerInfo) {
+            self.otherPlayers.getChildren().forEach(function (otherPlayer) {
+                if (playerInfo.playerId === otherPlayer.playerId) {
+                    otherPlayer.setRotation(playerInfo.rotation);
+                    otherPlayer.setPosition(playerInfo.x, playerInfo.y);
+                    otherPlayer.setFlipX(playerInfo.flipX);
+                    otherPlayer.anims.play(playerInfo.currentAnim.key, true);
+                }
+            });
+        });
     },
     update: function (time, delta) {
         if (!this.player) {
@@ -365,7 +368,7 @@ var Game = new Phaser.Class({
     addPlayer: function (playerInfo) {
         var that = this;
 
-        this.player = this.physics.add.sprite(playerInfo.x, playerInfo.y, 'player');
+        this.player = this.physics.add.sprite(this.spawnPoint.x, this.spawnPoint.y, 'player');
         this.player.setCollideWorldBounds(true);
         this.player.body.setSize(14, 19);
         this.player.body.setOffset(9, 12);
