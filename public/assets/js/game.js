@@ -185,6 +185,7 @@ var Game = new Phaser.Class({
         });
 
         var map = this.make.tilemap({ key: 'map' });
+        this.spawnPoint = map.findObject("Objects", obj => obj.name === "Player Spawn Point");
         var middle = map.addTilesetImage('middle');
         var props = map.addTilesetImage('props');
         var tileset = map.addTilesetImage('tileset');
