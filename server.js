@@ -15,7 +15,7 @@ io.on('connection', function (socket) {
     players[socket.id] = {
         rotation: 0,
         x: 150,
-        y: 175,
+        y: 209,
         playerId: socket.id,
         flipX: false,
         currentAnim: { key: 'idle' },

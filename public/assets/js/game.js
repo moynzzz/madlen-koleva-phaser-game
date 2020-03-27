@@ -132,6 +132,7 @@ var Game = new Phaser.Class({
     backgroundLayer: null,
     spikesLayer: null,
     otherPlayers: null,
+    eagle: null,
     initialize: function Game() {
         Phaser.Scene.call(this, {key: 'game'});
     },
@@ -142,6 +143,8 @@ var Game = new Phaser.Class({
         this.load.spritesheet('middle', 'assets/environment/middle.png', {frameWidth: 16, frameHeight: 16});
         this.load.spritesheet('wallpaper', 'assets/environment/back.png', {frameWidth: 16, frameHeight: 16});
         this.load.atlas('player', 'assets/player/player.png', 'assets/player/player.json');
+        this.load.atlas('eagle', 'assets/eagle/eagle.png', 'assets/eagle/eagle.json');
+        this.load.atlas('enemy_death', 'assets/enemy_death/enemy_death.png', 'assets/enemy_death/enemy_death.json');
     },
     create: function () {
         var self = this;
@@ -230,6 +233,31 @@ var Game = new Phaser.Class({
             frameRate: 6,
             repeat: -1
         });
+
+        this.anims.create({
+            key: 'hurt',
+            frames: this.anims.generateFrameNames('player', {prefix: 'player-hurt-', start: 1, end: 2, zeroPad: 1}),
+            frameRate: 6,
+            repeat: -1
+        });
+
+        this.eagle = this.physics.add.sprite(100, 203, 'eagle');
+        this.eagle.setCollideWorldBounds(true);
+        this.eagle.setVelocityY(-50);
+        this.physics.add.collider(this.worldLayer, this.eagle);
+
+        this.anims.create({
+            key: 'fly',
+            frames: this.anims.generateFrameNames('eagle', {prefix: 'eagle-attack-', start: 1, end: 4, zeroPad: 1}),
+            frameRate: 7,
+            repeat: -1
+        });
+
+        this.eagle.anims.play('fly', true);
+
+        this.eagle.body.allowGravity = false;
+
+        this.eagle.body.immovable = true;
     },
     update: function (time, delta) {
         if (!this.player) {
@@ -301,7 +329,7 @@ var Game = new Phaser.Class({
             this.player.body.setVelocityX(movementSpeed);
             this.player.flipX = false;
         } else if (isOnFloor) {
-            if (!shouldCrouch) {
+            if (!shouldCrouch && !this.player.isHurt) {
                 this.player.anims.play('idle', true);
             }
 
@@ -310,7 +338,7 @@ var Game = new Phaser.Class({
 
         if (shouldJump && isOnFloor) {
             this.player.anims.play('jump', true);
-            this.player.body.setVelocityY(-400);
+            this.player.body.setVelocityY(-450);
         } else if (shouldCrouch && isOnFloor) {
             this.player.anims.play('crouch', true);
 
@@ -318,8 +346,24 @@ var Game = new Phaser.Class({
                 this.player.setVelocityX(0);
             }
         }
+
+        if (this.player.isHurt) {
+            this.player.anims.play('hurt', true);
+        }
+
+        if (this.eagle.body) {
+            if (this.eagle.body.onCeiling()) {
+                this.eagle.setVelocityY(50);
+            } else if (this.eagle.body.onFloor()) {
+                this.eagle.setVelocityY(-50);
+            }
+
+            this.eagle.setVelocityX(0);
+        }
     },
     addPlayer: function (playerInfo) {
+        var that = this;
+
         this.player = this.physics.add.sprite(playerInfo.x, playerInfo.y, 'player');
         this.player.setCollideWorldBounds(true);
         this.player.body.setSize(14, 19);
@@ -327,6 +371,21 @@ var Game = new Phaser.Class({
 
         this.physics.add.collider(this.worldLayer, this.player);
         this.cameras.main.startFollow(this.player, true);
+
+        this.physics.add.overlap(this.player, this.eagle, function (player, eagle) {
+            if (!player.isHurt && player.body.velocity.y > 0 && player.body.y < eagle.body.y) {
+                that.createEnemyDeath(eagle.x, eagle.y);
+                eagle.destroy();
+                player.setVelocityY(-200);
+            } else {
+                player.anims.play('hurt', true);
+                player.isHurt = true;
+
+                setTimeout(function () {
+                    player.isHurt = false;
+                }, 750);
+            }
+        });
     },
     addOtherPlayer: function (playerInfo) {
         var otherPlayer = this.physics.add.sprite(playerInfo.x, playerInfo.y, 'player');
@@ -340,8 +399,32 @@ var Game = new Phaser.Class({
         this.physics.add.collider(this.worldLayer, otherPlayer);
 
         this.otherPlayers.add(otherPlayer);
-    }
+    },
+    createEnemyDeath: function (x, y) {
+        var enemyDeath = this.add.sprite(x, y, 'enemy_death');
+
+        this.anims.create({
+            key: 'enemy_death',
+            frames: this.anims.generateFrameNames('enemy_death', {
+                prefix: 'enemy-death-',
+                start: 1,
+                end: 6,
+                zeroPad: 1
+            }),
+            frameRate: 16,
+            repeat: 0
+        });
+
+        enemyDeath.play('enemy_death');
+        enemyDeath.once(Phaser.Animations.Events.SPRITE_ANIMATION_COMPLETE, () => {
+            enemyDeath.destroy();
+        });
+    },
 });
+
+var queryString = window.location.search;
+
+var urlParams = new URLSearchParams(queryString);
 
 var config = {
     type: Phaser.AUTO,
@@ -360,7 +443,7 @@ var config = {
             gravity: {
                 y: 1000
             },
-            debug: true
+            debug: null !== urlParams.get('debug'),
         }
     },
     pixelArt: true

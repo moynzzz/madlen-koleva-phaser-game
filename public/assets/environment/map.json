@@ -73,7 +73,7 @@
  "nextlayerid":13,
  "nextobjectid":1,
  "orientation":"orthogonal",
- "renderorder":"left-up",
+ "renderorder":"right-down",
  "tiledversion":"1.3.3",
  "tileheight":16,
  "tilesets":[
