@@ -11,6 +11,15 @@ var eagles = {
     "5": { id: 5, x: 2016, y: 176, minY: 96, maxY: 176, direction: "up", flipX: false },
     "6": { id: 6, x: 2656, y: 288, minY: 208 , maxY: 288, direction: "up", flipX: false },
 };
+var opossums = {
+    "7": { id: 7, x: 130, y: 208, minX: 208 , maxX: 304, direction: "right" },
+    "1": { id: 1, x: 208, y: 448-16, minX: 208 , maxX: 304, direction: "right" },
+    "2": { id: 2, x: 512, y: 496-16, minX: 336 , maxX: 512, direction: "left" },
+    "3": { id: 3, x: 656, y: 496-16, minX: 656 , maxX: 816, direction: "right" },
+    "4": { id: 4, x: 1296, y: 480-16, minX: 1184 , maxX: 1296, direction: "left" },
+    "5": { id: 5, x: 2112, y: 528-16, minX: 2112 , maxX: 2320, direction: "right" },
+    "6": { id: 6, x: 2656, y: 528-16, minX: 2432 , maxX: 2656, direction: "left" },
+};
 
 app.use(express.static(__dirname + '/public'));
 
@@ -23,15 +32,18 @@ io.on('connection', function (socket) {
     players[socket.id] = {
         rotation: 0,
         x: 80,
-        y: 224,
+        y: 224 - 16,
         playerId: socket.id,
         flipX: false,
-        currentAnim: { key: 'idle' },
+        currentAnim: { key: socket.handshake.query.characterType + '-idle' },
+        playerName: socket.handshake.query.playerName,
+        characterType: socket.handshake.query.characterType,
     };
 
     // send the players object to the new player
     socket.emit('currentPlayers', players);
     socket.emit('currentEagles', eagles);
+    socket.emit('currentOpossums', opossums);
 
     // update all other players of the new player
     socket.broadcast.emit('newPlayer', players[socket.id]);
@@ -61,9 +73,16 @@ io.on('connection', function (socket) {
 
         socket.broadcast.emit('eagleKilled', eagleData);
     });
+
+    socket.on('killOpossum', function (opossumData) {
+        delete opossums[opossumData.opossumId];
+
+        socket.broadcast.emit('opossumKilled', opossumData);
+    });
 });
 
 var eagleSpeed = 1.9;
+var opossumsSpeed = 1.4;
 
 function moveEnemies()
 {
@@ -85,7 +104,26 @@ function moveEnemies()
         }
     });
 
+    Object.keys(opossums).forEach(function (id) {
+        if (opossums[id].direction === "left") {
+            opossums[id].x -= opossumsSpeed;
+
+            if (opossums[id].x <= opossums[id].minX) {
+                opossums[id].x = opossums[id].minX;
+                opossums[id].direction = 'right';
+            }
+        } else {
+            opossums[id].x += opossumsSpeed;
+
+            if (opossums[id].x >= opossums[id].maxX) {
+                opossums[id].x = opossums[id].maxX;
+                opossums[id].direction = 'left';
+            }
+        }
+    });
+
     io.emit('eaglesMovement', eagles);
+    io.emit('opossumMovement', opossums);
 }
 
 setInterval(moveEnemies, 1000 / 30);
