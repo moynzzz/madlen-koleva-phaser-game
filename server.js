@@ -215,6 +215,10 @@ io.on('connection', function (socket) {
 
     // when a player moves, update the player data
     socket.on('playerMovement', function (movementData) {
+        if (!players[socket.id]) {
+            return;
+        }
+
         players[socket.id].x = movementData.x;
         players[socket.id].y = movementData.y;
         players[socket.id].rotation = movementData.rotation;
