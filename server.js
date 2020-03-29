@@ -143,7 +143,7 @@ var level2 = {
         var allPlayersInHouse = true;
 
         Object.keys(players).forEach(function (id) {
-            if (players[id].x >= 2960 && players[id].x <= 3040 && players[id].y <= 347) {} else {
+            if (players[id].x >= 2960 && players[id].x <= 3040 && players[id].y >= 245 && players[id].y <= 350) {} else {
                 allPlayersInHouse = false;
             }
         });
@@ -357,7 +357,7 @@ var io = require('socket.io').listen(server);
 var players = {};
 var score = 0;
 var lastLevelScore = 0;
-var currentLevel = 1;
+var currentLevel = 2;
 var eagles = {};
 var opossums = {};
 var collectables = {};
