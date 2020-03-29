@@ -693,6 +693,7 @@ var Game = new Phaser.Class({
         this.player.anims.play(playerInfo.currentAnim.key, true);
 
         this.physics.add.collider(this.worldLayer, this.player);
+        this.physics.add.collider(this.player, this.otherPlayers);
 
         this.spikesLayer.setTileIndexCallback(270, function () {
             if (that.player && !that.player.isHurt) {
@@ -809,7 +810,6 @@ var Game = new Phaser.Class({
         otherPlayer.anims.play(playerInfo.currentAnim.key, true);
 
         this.physics.add.collider(this.worldLayer, otherPlayer);
-        this.physics.add.collider(this.player, otherPlayer);
 
         this.otherPlayers.add(otherPlayer);
 
