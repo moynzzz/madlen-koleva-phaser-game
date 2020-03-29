@@ -738,9 +738,10 @@ var Game = new Phaser.Class({
         }
     },
     endGame: function () {
+        this.socket.disconnect();
+        this.scoreText.destroy();
         this.player.destroy();
         this.player = null;
-        this.socket.disconnect();
         this.scene.start('game_over');
     },
     addCollectable: function (collectable) {
