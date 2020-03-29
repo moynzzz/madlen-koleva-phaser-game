@@ -880,7 +880,7 @@ var Game = new Phaser.Class({
         this.gameBackgroundMusic.stop();
         this.gameSuccessSound.play();
 
-        this.scene.start('game_over');
+        this.scene.start('level_complete');
     },
     addCollectable: function (collectable) {
         var collectableSprite = this.physics.add.sprite(collectable.x, collectable.y, 'collectable');
@@ -1026,6 +1026,66 @@ var GameOver = new Phaser.Class({
     }
 });
 
+var LevelComplete = new Phaser.Class({
+    Extends: Phaser.Scene,
+    background: null,
+    game_over_background: null,
+    continue_btn: null,
+    main_menu_btn: null,
+    score_text: null,
+    initialize: function GameOver() {
+        Phaser.Scene.call(this, {key: 'level_complete'});
+    },
+    preload: function () {
+        this.load.image('background', 'assets/environment/back.png');
+        this.load.image('level-complete-background', 'assets/menu/level-clear-back.png');
+        this.load.image('continue-btn', 'assets/menu/next-btn.png');
+        this.load.image('main-menu-btn', 'assets/menu/game-over-exit-btn.png');
+        this.load.audio('menu_background', 'assets/sound/menu_background.mp3');
+    },
+    create: function () {
+        this.menuBackgroundMusic = this.sound.add('menu_background', {
+            loop: true,
+            volume: 0.50,
+        });
+        this.menuBackgroundMusic.play();
+
+        this.background = this.add.tileSprite(config.scale.width / 2, config.scale.height / 2, config.scale.width, config.scale.height, 'background');
+        this.game_over_background = this.add.image(config.scale.width / 2, config.scale.height / 2, 'level-complete-background');
+        this.continue_btn = this.add.image(config.scale.width / 2 - 40, 140, 'continue-btn').setInteractive();
+        this.main_menu_btn = this.add.image(config.scale.width / 2 + 40, 140, 'main-menu-btn').setInteractive();
+        this.score_text = this.add.text(config.scale.width / 2, config.scale.height / 2 - 5, 'Score: ' + score);
+        this.score_text.setColor('#ffea49');
+        this.score_text.setOrigin(0.5, 0.5);
+        this.score_text.setFontSize(22);
+
+        this.continue_btn.on('pointerdown', this.continueGame, this);
+        this.main_menu_btn.on('pointerdown', this.goToMainMenu, this);
+
+        this.game_over_background.scaleX = 0.3;
+        this.game_over_background.scaleY = 0.3;
+
+        this.continue_btn.scaleX = 0.3;
+        this.continue_btn.scaleY = 0.3;
+
+        this.main_menu_btn.scaleX = 0.3;
+        this.main_menu_btn.scaleY = 0.3;
+    },
+    update: function (time, delta) {
+        this.background.tilePositionX += delta * 0.02;
+    },
+    continueGame: function () {
+        this.menuBackgroundMusic.stop();
+
+        this.scene.start('game');
+    },
+    goToMainMenu: function () {
+        this.menuBackgroundMusic.stop();
+
+        this.scene.start('boot');
+    }
+});
+
 var queryString = window.location.search;
 
 var urlParams = new URLSearchParams(queryString);
@@ -1033,7 +1093,7 @@ var urlParams = new URLSearchParams(queryString);
 var config = {
     type: Phaser.AUTO,
     backgroundColor: '#000000',
-    scene: [Boot, Game, GameOver],
+    scene: [Boot, Game, GameOver, LevelComplete],
     scale: {
         mode: Phaser.Scale.FIT,
         autoCenter: Phaser.Scale.CENTER_BOTH,
