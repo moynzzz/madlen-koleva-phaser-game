@@ -3,11 +3,11 @@ var characterType = null;
 var score = null;
 var yannieSizes = {
     idle: {size: {x: 14, y: 19}, offset: {x: 9, y: 12}},
-    crouch: {size: {x: yannieSizes.idle.size.x, y: yannieSizes.idle.size.y - 3}, offset: {x: yannieSizes.idle.offset.x, y: yannieSizes.idle.offset.y + 3}},
+    crouch: {size: {x: 14, y: 19 - 3}, offset: {x: 9, y: 12 + 3}},
 };
 var brannieSizes = {
     idle: {size: {x: 17, y: 24}, offset: {x: 39, y: 24}},
-    crouch: {size: {x: brannieSizes.idle.size.x, y: brannieSizes.idle.size.y - 3}, offset: {x: brannieSizes.idle.offset.x, y: brannieSizes.idle.offset.y + 3}},
+    crouch: {size: {x: 17, y: 24 - 3}, offset: {x: 39, y: 24 + 3}},
 };
 
 var Boot = new Phaser.Class({
