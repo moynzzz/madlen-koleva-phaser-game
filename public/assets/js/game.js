@@ -604,7 +604,7 @@ var Game = new Phaser.Class({
         };
 
         var movementSpeed = 100;
-        var isOnFloor = this.player.body.onFloor();
+        var isOnFloor = this.player.body.onFloor() || this.player.body.touching.down;
         var shouldJump = this.cursors.space.isDown || this.cursors.up.isDown;
         var shouldCrouch = this.cursors.down.isDown;
 
@@ -642,7 +642,7 @@ var Game = new Phaser.Class({
 
             this.player.body.setVelocityX(movementSpeed);
             this.player.flipX = false;
-        } else if (isOnFloor || this.player.body.blocked.down) {
+        } else if (isOnFloor) {
             if (!shouldCrouch && !this.player.isHurt) {
                 this.player.anims.play(characterType + '-idle', true);
             }
