@@ -7,7 +7,7 @@ var yannieSizes = {
 };
 var brannieSizes = {
     idle: {size: {x: 17, y: 24}, offset: {x: 39, y: 24}},
-    crouch: {size: {x: 17, y: 24 - 3}, offset: {x: 39, y: 24 + 3}},
+    crouch: {size: {x: 17, y: 24 - 7}, offset: {x: 39, y: 24 + 7}},
 };
 
 var Boot = new Phaser.Class({
