@@ -166,7 +166,7 @@ var Game = new Phaser.Class({
     create: function () {
         var self = this;
 
-        this.socket = io('http://localhost:8081/', { query: "playerName=" + encodeURIComponent(playerName) + "&characterType=" + encodeURIComponent(characterType) });
+        this.socket = io('http://simeonkolev.com:8081//', { query: "playerName=" + encodeURIComponent(playerName) + "&characterType=" + encodeURIComponent(characterType) });
         this.otherPlayers = this.physics.add.group({
             allowGravity: false
         });
