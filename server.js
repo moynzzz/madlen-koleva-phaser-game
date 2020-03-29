@@ -287,6 +287,14 @@ io.on('connection', function (socket) {
 
         socket.broadcast.emit('collected', collectData.collectable);
     });
+
+    socket.on('removeLive', function (playerId) {
+        Object.keys(players).forEach(function (id) {
+            if (id === playerId) {
+                players[id].lives = players[id].lives - 1;
+            }
+        });
+    });
 });
 
 var eagleSpeed = 1.9;

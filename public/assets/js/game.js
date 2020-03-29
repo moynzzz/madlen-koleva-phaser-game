@@ -732,6 +732,8 @@ var Game = new Phaser.Class({
 
         live.destroy();
 
+        this.socket.emit('removeLive', this.player.playerId);
+
         if (this.lives.children.entries.length === 0) {
             this.socket.emit('endGame');
             this.endGame();
