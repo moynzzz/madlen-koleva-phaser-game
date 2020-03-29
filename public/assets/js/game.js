@@ -1,5 +1,6 @@
 var playerName = null;
 var characterType = null;
+var score = null;
 
 var Boot = new Phaser.Class({
     Extends: Phaser.Scene,
@@ -143,6 +144,8 @@ var Game = new Phaser.Class({
     eagles: null,
     opossums: null,
     playerNames: null,
+    lives: null,
+    collectables: null,
     initialize: function Game() {
         Phaser.Scene.call(this, {key: 'game'});
     },
@@ -157,11 +160,13 @@ var Game = new Phaser.Class({
         this.load.atlas('eagle', 'assets/eagle/eagle.png', 'assets/eagle/eagle.json');
         this.load.atlas('enemy_death', 'assets/enemy_death/enemy_death.png', 'assets/enemy_death/enemy_death.json');
         this.load.atlas('opossum', 'assets/opossum/opossum.png', 'assets/opossum/opossum.json');
+        this.load.atlas('collectable', 'assets/collectable/collectable.png', 'assets/collectable/collectable.json');
+        this.load.spritesheet('heart', 'assets/heart/heart.png', {frameWidth: 17, frameHeight: 17});
     },
     create: function () {
         var self = this;
 
-        this.socket = io('http://simeonkolev.com:8081/', { query: "playerName=" + encodeURIComponent(playerName) + "&characterType=" + encodeURIComponent(characterType) });
+        this.socket = io('http://localhost:8081/', { query: "playerName=" + encodeURIComponent(playerName) + "&characterType=" + encodeURIComponent(characterType) });
         this.otherPlayers = this.physics.add.group({
             allowGravity: false
         });
@@ -173,7 +178,12 @@ var Game = new Phaser.Class({
             immovable: true,
             allowGravity: false
         });
+        this.collectables = this.physics.add.group({
+            immovable: true,
+            allowGravity: false
+        });
         this.playerNames = this.add.group();
+        this.lives = this.add.group();
         this.map = this.make.tilemap({ key: 'map' });
         this.spawnPoint = this.map.findObject("Objects", obj => obj.name === "Player Spawn Point");
 
@@ -280,6 +290,41 @@ var Game = new Phaser.Class({
             frames: this.anims.generateFrameNames('opossum', {prefix: 'opossum-', start: 1, end: 6, zeroPad: 1}),
             frameRate: 6,
             repeat: -1
+        });
+
+        this.anims.create({
+            key: 'gem',
+            frames: this.anims.generateFrameNames('collectable', {prefix: 'gem-', start: 1, end: 5, zeroPad: 1}),
+            frameRate: 6,
+            repeat: -1
+        });
+
+        this.anims.create({
+            key: 'cherry',
+            frames: this.anims.generateFrameNames('collectable', {prefix: 'cherry-', start: 1, end: 7, zeroPad: 1}),
+            frameRate: 6,
+            repeat: -1
+        });
+
+        this.anims.create({
+            key: 'acorn',
+            frames: this.anims.generateFrameNames('collectable', {prefix: 'acorn-', start: 1, end: 3, zeroPad: 1}),
+            frameRate: 6,
+            repeat: -1
+        });
+
+        this.anims.create({
+            key: 'collect',
+            frames: this.anims.generateFrameNames('collectable', {prefix: 'item-feedback-', start: 1, end: 4, zeroPad: 1}),
+            frameRate: 6,
+            repeat: 0
+        });
+
+        this.anims.create({
+            key: 'enemy_death',
+            frames: this.anims.generateFrameNames('enemy_death', {prefix: 'enemy-death-', start: 1, end: 6, zeroPad: 1}),
+            frameRate: 16,
+            repeat: 0
         });
 
         this.socket.on('currentPlayers', function (players) {
@@ -391,6 +436,59 @@ var Game = new Phaser.Class({
                 if (opossumData.opossumId === opossum.opossumId) {
                     self.createEnemyDeath(opossum.x, opossum.y);
                     opossum.destroy();
+                }
+            });
+        });
+
+        this.socket.on('collected', function (collectableId) {
+            self.collectables.getChildren().forEach(function (collectable) {
+                if (collectableId === collectable.collectableId) {
+                    self.createCollectAnimation(collectable.x, collectable.y);
+                    collectable.destroy();
+                }
+            });
+        });
+
+        this.socket.on('gameOver', function () {
+            self.endGame();
+        });
+
+        this.socket.on('currentScore', function (currentScore) {
+            score = currentScore;
+
+            if (!self.scoreText) {
+                self.scoreText = self.add.text(config.scale.width, 0, "Score: " + currentScore);
+                self.scoreText.setOrigin(1, 0);
+                self.scoreText.setColor('#ffea49');
+                self.scoreText.setScrollFactor(0);
+            } else {
+                self.scoreText.setText("Score: " + currentScore);
+            }
+        });
+
+        this.socket.on('currentCollectables', function (collectables) {
+            Object.keys(collectables).forEach(function (id) {
+                self.addCollectable(collectables[id]);
+            });
+
+            self.physics.add.overlap(self.player, self.collectables, function (player, collectable) {
+                self.collect(player, collectable);
+            });
+        });
+
+        this.socket.on('playerLives', function (players) {
+            Object.keys(players).forEach(function (id) {
+                if (id === self.player.playerId) {
+                    self.lives.clear();
+
+                    for (var i = 0; i < players[id].lives; i++) {
+                        var heart = self.add.sprite((17 * i) + (i === 0 ? 0 : 4 * i) + 3, 3, 'heart');
+
+                        heart.setOrigin(0, 0);
+                        heart.setScrollFactor(0);
+
+                        self.lives.add(heart);
+                    }
                 }
             });
         });
@@ -545,12 +643,17 @@ var Game = new Phaser.Class({
                 eagle.destroy();
                 player.setVelocityY(-200);
             } else {
-                player.anims.play('hurt', true);
-                player.isHurt = true;
+                player.anims.play(playerInfo.characterType + '-hurt', true);
 
-                setTimeout(function () {
-                    player.isHurt = false;
-                }, 750);
+                if (!player.isHurt) {
+                    that.removeLive();
+
+                    setTimeout(function () {
+                        player.isHurt = false;
+                    }, 1000);
+                }
+
+                player.isHurt = true;
             }
         });
 
@@ -561,16 +664,28 @@ var Game = new Phaser.Class({
                 opossum.destroy();
                 player.setVelocityY(-200);
             } else {
-                player.anims.play('hurt', true);
-                player.isHurt = true;
+                player.anims.play(playerInfo.characterType + '-hurt', true);
 
-                setTimeout(function () {
-                    player.isHurt = false;
-                }, 750);
+                if (!player.isHurt) {
+                    that.removeLive();
+
+                    setTimeout(function () {
+                        player.isHurt = false;
+                    }, 1000);
+                }
+
+                player.isHurt = true;
             }
         });
 
+        for (var i = 0; i < playerInfo.lives; i++) {
+            var heart = this.add.sprite((17 * i) + (i === 0 ? 0 : 4 * i) + 3, 3, 'heart');
 
+            heart.setOrigin(0, 0);
+            heart.setScrollFactor(0);
+
+            this.lives.add(heart);
+        }
     },
     addOtherPlayer: function (playerInfo) {
         var otherPlayer = this.physics.add.sprite(playerInfo.x, playerInfo.y, playerInfo.characterType);
@@ -607,23 +722,109 @@ var Game = new Phaser.Class({
     createEnemyDeath: function (x, y) {
         var enemyDeath = this.add.sprite(x, y, 'enemy_death');
 
-        this.anims.create({
-            key: 'enemy_death',
-            frames: this.anims.generateFrameNames('enemy_death', {
-                prefix: 'enemy-death-',
-                start: 1,
-                end: 6,
-                zeroPad: 1
-            }),
-            frameRate: 16,
-            repeat: 0
-        });
-
         enemyDeath.play('enemy_death');
         enemyDeath.once(Phaser.Animations.Events.SPRITE_ANIMATION_COMPLETE, () => {
             enemyDeath.destroy();
         });
     },
+    removeLive: function () {
+        var live = this.lives.children.entries[this.lives.children.entries.length - 1];
+
+        live.destroy();
+
+        if (this.lives.children.entries.length === 0) {
+            this.socket.emit('endGame');
+            this.endGame();
+        }
+    },
+    endGame: function () {
+        this.player.destroy();
+        this.player = null;
+        this.socket.disconnect();
+        this.scene.start('game_over');
+    },
+    addCollectable: function (collectable) {
+        var collectableSprite = this.physics.add.sprite(collectable.x, collectable.y, 'collectable');
+
+        collectableSprite.setOrigin(0.5, 1);
+
+        if (collectable.type === 'cherry') {
+            collectableSprite.setOrigin(0.5, 0.8);
+            collectableSprite.setOffset(2, 2);
+        }
+
+        collectableSprite.anims.play(collectable.type, true);
+
+        collectableSprite.collectableId = collectable.id;
+        collectableSprite.type = collectable.type;
+
+        this.collectables.add(collectableSprite);
+    },
+    collect: function (player, collectable) {
+        this.socket.emit('collect', { player: player.playerId, collectable: collectable.collectableId});
+
+        this.createCollectAnimation(collectable.x, collectable.y);
+
+        collectable.destroy();
+    },
+    createCollectAnimation: function (x, y) {
+        var collect = this.add.sprite(x, y, 'collectable');
+
+        collect.setOrigin(0.5, 0.75);
+        collect.play('collect');
+        collect.once(Phaser.Animations.Events.SPRITE_ANIMATION_COMPLETE, () => {
+            collect.destroy();
+        });
+    },
+});
+
+var GameOver = new Phaser.Class({
+    Extends: Phaser.Scene,
+    background: null,
+    game_over_background: null,
+    restart_btn: null,
+    main_menu_btn: null,
+    score_text: null,
+    initialize: function GameOver() {
+        Phaser.Scene.call(this, {key: 'game_over'});
+    },
+    preload: function () {
+        this.load.image('background', 'assets/environment/back.png');
+        this.load.image('game-over-background', 'assets/menu/game-over-back.png');
+        this.load.image('restart-btn', 'assets/menu/restart-btn.png');
+        this.load.image('main-menu-btn', 'assets/menu/game-over-exit-btn.png');
+    },
+    create: function () {
+        this.background = this.add.tileSprite(config.scale.width / 2, config.scale.height / 2, config.scale.width, config.scale.height, 'background');
+        this.game_over_background = this.add.image(config.scale.width / 2, config.scale.height / 2, 'game-over-background');
+        this.restart_btn = this.add.image(config.scale.width / 2 - 40, 140, 'restart-btn').setInteractive();
+        this.main_menu_btn = this.add.image(config.scale.width / 2 + 40, 140, 'main-menu-btn').setInteractive();
+        this.score_text = this.add.text(config.scale.width / 2, config.scale.height / 2 - 5, 'Score: ' + score);
+        this.score_text.setColor('#ffea49');
+        this.score_text.setOrigin(0.5, 0.5);
+        this.score_text.setFontSize(22);
+
+        this.restart_btn.on('pointerdown', this.restartGame, this);
+        this.main_menu_btn.on('pointerdown', this.goToMainMenu, this);
+
+        this.game_over_background.scaleX = 0.3;
+        this.game_over_background.scaleY = 0.3;
+
+        this.restart_btn.scaleX = 0.3;
+        this.restart_btn.scaleY = 0.3;
+
+        this.main_menu_btn.scaleX = 0.3;
+        this.main_menu_btn.scaleY = 0.3;
+    },
+    update: function (time, delta) {
+        this.background.tilePositionX += delta * 0.02;
+    },
+    restartGame: function () {
+        this.scene.start('game');
+    },
+    goToMainMenu: function () {
+        this.scene.start('boot');
+    }
 });
 
 var queryString = window.location.search;
@@ -633,7 +834,7 @@ var urlParams = new URLSearchParams(queryString);
 var config = {
     type: Phaser.AUTO,
     backgroundColor: '#000000',
-    scene: [Boot, Game],
+    scene: [Boot, Game, GameOver],
     scale: {
         mode: Phaser.Scale.FIT,
         autoCenter: Phaser.Scale.CENTER_BOTH,
