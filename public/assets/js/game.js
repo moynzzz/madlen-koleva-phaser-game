@@ -642,7 +642,7 @@ var Game = new Phaser.Class({
 
             this.player.body.setVelocityX(movementSpeed);
             this.player.flipX = false;
-        } else if (isOnFloor) {
+        } else if (isOnFloor || this.player.body.blocked.down) {
             if (!shouldCrouch && !this.player.isHurt) {
                 this.player.anims.play(characterType + '-idle', true);
             }
@@ -848,6 +848,7 @@ var Game = new Phaser.Class({
 
         live.destroy();
 
+        // TODO: Uncomment
         // this.socket.emit('removeLive', this.player.playerId);
 
         if (this.lives.children.entries.length === 0) {
