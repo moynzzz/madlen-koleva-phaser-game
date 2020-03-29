@@ -196,7 +196,6 @@ var Game = new Phaser.Class({
             volume: 0.50,
         });
         this.gameBackgroundMusic.play();
-        this.gameBackgroundMusic.setMute(true);
 
         this.hurtSound = this.sound.add('hurt');
         this.playerHurtSound = this.sound.add('player_hurt');
