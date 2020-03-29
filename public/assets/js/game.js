@@ -742,6 +742,7 @@ var Game = new Phaser.Class({
     endGame: function () {
         this.socket.disconnect();
         this.scoreText.destroy();
+        this.scoreText = null;
         this.player.destroy();
         this.player = null;
         this.scene.start('game_over');
