@@ -80,7 +80,56 @@ var level1 = {
         "48": {id: 48, x: 2320, y: 528, type: 'acorn'},
     },
     locks: {
-
+        "1": {
+            first: {x: 45, y: 30},
+            second: {x: 68, y: 25},
+            removes: [
+                {x: 20, y: 14},
+                {x: 21, y: 14},
+                {x: 22, y: 14},
+                {x: 23, y: 14},
+                {x: 29, y: 14},
+                {x: 30, y: 14},
+                {x: 31, y: 14},
+                {x: 32, y: 14},
+            ],
+            camera: {x: 26, y: 15},
+        },
+        "2": {
+            first: {x: 83, y: 11},
+            second: {x: 96, y: 33},
+            removes: [
+                {x: 87, y: 7},
+                {x: 87, y: 8},
+                {x: 87, y: 9},
+                {x: 87, y: 10},
+                {x: 87, y: 11},
+                {x: 118, y: 7},
+                {x: 118, y: 8},
+                {x: 118, y: 9},
+                {x: 118, y: 10},
+                {x: 118, y: 11},
+            ],
+            camera: {x: 88, y: 10},
+        },
+        "3": {
+            first: {x: 107, y: 15},
+            second: {x: 129, y: 30},
+            removes: [
+                {x: 142, y: 16},
+                {x: 143, y: 16},
+                {x: 144, y: 16},
+                {x: 145, y: 16},
+                {x: 151, y: 19},
+                {x: 152, y: 19},
+                {x: 153, y: 19},
+                {x: 154, y: 19},
+                {x: 155, y: 19},
+                {x: 156, y: 19},
+                {x: 158, y: 19},
+            ],
+            camera: {x: 148, y: 17},
+        },
     },
 };
 
@@ -196,21 +245,6 @@ var level2 = {
         "76": {id: 76, x: 2386, y: 604, type: 'acorn'},
     },
     locks: {
-        "999": {
-            first: {x: 28, y: 31},
-            second: {x: 28, y: 31},
-            removes: [
-                {x: 17, y: 32},
-                {x: 18, y: 32},
-                {x: 19, y: 32},
-                {x: 20, y: 32},
-                {x: 21, y: 32},
-                {x: 22, y: 32},
-                {x: 23, y: 32},
-                {x: 24, y: 32},
-            ],
-            camera: {x: 21, y: 32},
-        },
         "1": {
             first: {x: 28, y: 31},
             second: {x: 13, y: 47},
@@ -322,8 +356,8 @@ var server = require('http').Server(app);
 var io = require('socket.io').listen(server);
 var players = {};
 var score = 0;
-var lastLevelScore = 50;
-var currentLevel = 2;
+var lastLevelScore = 0;
+var currentLevel = 1;
 var eagles = {};
 var opossums = {};
 var collectables = {};
