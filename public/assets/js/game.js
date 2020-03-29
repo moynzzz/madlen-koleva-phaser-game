@@ -133,12 +133,12 @@ var Game = new Phaser.Class({
     socket: null,
     player: null,
     map: null,
-    spawnPoint: null,
     cursors: null,
     worldLayer: null,
     skyLayer: null,
     bushesLayer: null,
     backgroundLayer: null,
+    locksLayer: null,
     spikesLayer: null,
     otherPlayers: null,
     eagles: null,
@@ -150,7 +150,8 @@ var Game = new Phaser.Class({
         Phaser.Scene.call(this, {key: 'game'});
     },
     preload: function () {
-        this.load.tilemapTiledJSON('map', 'assets/environment/map.json');
+        this.load.tilemapTiledJSON('map1', 'assets/environment/map1.json');
+        this.load.tilemapTiledJSON('map2', 'assets/environment/map2.json');
         this.load.spritesheet('props', 'assets/environment/props.png', {frameWidth: 16, frameHeight: 16});
         this.load.spritesheet('tileset', 'assets/environment/tileset.png', {frameWidth: 16, frameHeight: 16});
         this.load.spritesheet('middle', 'assets/environment/middle.png', {frameWidth: 16, frameHeight: 16});
@@ -166,7 +167,7 @@ var Game = new Phaser.Class({
     create: function () {
         var self = this;
 
-        this.socket = io('http://simeonkolev.com:8081/', { query: "playerName=" + encodeURIComponent(playerName) + "&characterType=" + encodeURIComponent(characterType) });
+        this.socket = io('http://localhost:8081/', { query: "playerName=" + encodeURIComponent(playerName) + "&characterType=" + encodeURIComponent(characterType) });
         this.otherPlayers = this.physics.add.group({
             allowGravity: false
         });
@@ -184,29 +185,8 @@ var Game = new Phaser.Class({
         });
         this.playerNames = this.add.group();
         this.lives = this.add.group();
-        this.map = this.make.tilemap({ key: 'map' });
-        this.spawnPoint = this.map.findObject("Objects", obj => obj.name === "Player Spawn Point");
-
-        var middle = this.map.addTilesetImage('middle');
-        var props = this.map.addTilesetImage('props');
-        var tileset = this.map.addTilesetImage('tileset');
-        var wallpaper = this.map.addTilesetImage('wallpaper');
-
-        this.skyLayer = this.map.createDynamicLayer('Sky', [middle, props, tileset, wallpaper]);
-        this.bushesLayer = this.map.createDynamicLayer('Bushes', [middle, props, tileset, wallpaper]);
-        this.backgroundLayer = this.map.createDynamicLayer('Background', [middle, props, tileset, wallpaper]);
-        this.spikesLayer = this.map.createDynamicLayer('Spikes', [middle, props, tileset, wallpaper]);
-        this.worldLayer = this.map.createDynamicLayer('World', [middle, props, tileset, wallpaper]);
-
-        this.worldLayer.setCollisionByExclusion([-1]);
-
-        this.physics.world.bounds.width = this.worldLayer.width;
-        this.physics.world.bounds.height = this.worldLayer.height;
 
         this.cursors = this.input.keyboard.createCursorKeys();
-
-        this.cameras.main.setBounds(0, 0, this.map.widthInPixels, this.map.heightInPixels);
-        this.cameras.main.setBackgroundColor('#ccccff');
 
         this.anims.create({
             key: 'yannie-idle',
@@ -479,7 +459,7 @@ var Game = new Phaser.Class({
         this.socket.on('playerLives', function (players) {
             Object.keys(players).forEach(function (id) {
                 if (id === self.player.playerId) {
-                    self.lives.clear();
+                    self.lives.clear(true, true);
 
                     for (var i = 0; i < players[id].lives; i++) {
                         var heart = self.add.sprite((17 * i) + (i === 0 ? 0 : 4 * i) + 3, 3, 'heart');
@@ -491,6 +471,40 @@ var Game = new Phaser.Class({
                     }
                 }
             });
+        });
+
+        this.socket.on('levelCompleted', function () {
+            self.nextLevel();
+        });
+
+        this.socket.on('currentLevel', function (currentLevel) {
+            if (currentLevel === 1) {
+                self.map = self.make.tilemap({ key: 'map1' });
+            } else if (currentLevel === 2) {
+                self.map = self.make.tilemap({ key: 'map2' });
+            } else {
+                throw "Not existing level.";
+            }
+
+            var middle = self.map.addTilesetImage('middle');
+            var props = self.map.addTilesetImage('props');
+            var tileset = self.map.addTilesetImage('tileset');
+            var wallpaper = self.map.addTilesetImage('wallpaper');
+
+            self.skyLayer = self.map.createDynamicLayer('Sky', [middle, props, tileset, wallpaper]);
+            self.bushesLayer = self.map.createDynamicLayer('Bushes', [middle, props, tileset, wallpaper]);
+            self.backgroundLayer = self.map.createDynamicLayer('Background', [middle, props, tileset, wallpaper]);
+            self.locksLayer = self.map.createDynamicLayer('Locks', [middle, props, tileset, wallpaper]);
+            self.spikesLayer = self.map.createDynamicLayer('Spikes', [middle, props, tileset, wallpaper]);
+            self.worldLayer = self.map.createDynamicLayer('World', [middle, props, tileset, wallpaper]);
+
+            self.worldLayer.setCollisionByExclusion([-1]);
+
+            self.physics.world.bounds.width = self.worldLayer.width;
+            self.physics.world.bounds.height = self.worldLayer.height;
+
+            self.cameras.main.setBounds(0, 0, self.map.widthInPixels, self.map.heightInPixels);
+            self.cameras.main.setBackgroundColor('#ccccff');
         });
     },
     update: function (time, delta) {
@@ -728,9 +742,9 @@ var Game = new Phaser.Class({
         });
     },
     removeLive: function () {
-        var live = this.lives.getLast();
+        console.log(this.lives.children);
 
-        this.lives.remove(live);
+        var live = this.lives.children.entries[this.lives.children.entries.length - 1];
 
         live.destroy();
 
@@ -743,10 +757,24 @@ var Game = new Phaser.Class({
     },
     endGame: function () {
         this.socket.disconnect();
+
         this.scoreText.destroy();
         this.scoreText = null;
+
         this.player.destroy();
         this.player = null;
+
+        this.scene.start('game_over');
+    },
+    nextLevel: function () {
+        this.socket.disconnect();
+
+        this.scoreText.destroy();
+        this.scoreText = null;
+
+        this.player.destroy();
+        this.player = null;
+
         this.scene.start('game_over');
     },
     addCollectable: function (collectable) {

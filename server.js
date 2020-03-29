@@ -1,4 +1,19 @@
 var level1 = {
+    spawnPoint: {
+        x: 80,
+        y: 224 - 16,
+    },
+    isLevelCompleted: function() {
+        var allPlayersInHouse = true;
+
+        Object.keys(players).forEach(function (id) {
+            if (players[id].x >= 2855 && players[id].x <= 2935 && players[id].y <= 289) {} else {
+                allPlayersInHouse = false;
+            }
+        });
+
+        return allPlayersInHouse;
+    },
     eagles: {
         "1": { id: 1, x: 432, y: 208, minY: 128, maxY: 208, direction: "up", flipX: false },
         "2": { id: 2, x: 752, y: 208, minY: 128, maxY: 208, direction: "up", flipX: false },
@@ -68,6 +83,10 @@ var level1 = {
 };
 
 var level2 = {
+    spawnPoint: {
+        x: 96,
+        y: 496,
+    },
     eagles: {
         "1": { id: 1, x: 240, y: 272, minY: 192, maxY: 272, direction: "up", flipX: false },
         "2": { id: 2, x: 656, y: 272, minY: 192, maxY: 272, direction: "up", flipX: false },
@@ -78,12 +97,12 @@ var level2 = {
         "7": { id: 7, x: 2560, y: 272, minY: 192, maxY: 272, direction: "up", flipX: false },
     },
     opossums: {
-        "1": { id: 1, x: 400, y: 768, minX: 400 , maxX: 480, direction: "right" },
-        "2": { id: 2, x: 656, y: 512, minX: 608 , maxX: 656, direction: "left" },
-        "3": { id: 3, x: 1072, y: 848, minX: 992 , maxX: 1072, direction: "left" },
-        "4": { id: 4, x: 1248, y: 848, minX: 1248 , maxX: 1376, direction: "right" },
-        "5": { id: 5, x: 1584, y: 560, minX: 1584 , maxX: 1728, direction: "right" },
-        "6": { id: 6, x: 2048, y: 560, minX: 1904 , maxX: 2048, direction: "left" },
+        "1": { id: 1, x: 400, y: 768-16, minX: 400 , maxX: 480, direction: "right" },
+        "2": { id: 2, x: 656, y: 512-16, minX: 608 , maxX: 656, direction: "left" },
+        "3": { id: 3, x: 1072, y: 848-16, minX: 992 , maxX: 1072, direction: "left" },
+        "4": { id: 4, x: 1248, y: 848-16, minX: 1248 , maxX: 1376, direction: "right" },
+        "5": { id: 5, x: 1584, y: 560-16, minX: 1584 , maxX: 1728, direction: "right" },
+        "6": { id: 6, x: 2048, y: 560-16, minX: 1904 , maxX: 2048, direction: "left" },
     },
     collectables: {
         "1": {id: 1, x: 16, y: 288, type: 'gem'},
@@ -163,6 +182,17 @@ var level2 = {
         "75": {id: 75, x: 2192, y: 160, type: 'acorn'},
         "76": {id: 76, x: 2386, y: 604, type: 'acorn'},
     },
+    isLevelCompleted: function() {
+        var allPlayersInHouse = true;
+
+        Object.keys(players).forEach(function (id) {
+            if (players[id].x >= 2960 && players[id].x <= 3040 && players[id].y <= 347) {} else {
+                allPlayersInHouse = false;
+            }
+        });
+
+        return allPlayersInHouse;
+    },
 };
 
 var express = require('express');
@@ -171,9 +201,21 @@ var server = require('http').Server(app);
 var io = require('socket.io').listen(server);
 var players = {};
 var score = 0;
-var eagles = { ... level1.eagles };
-var opossums = { ... level1.opossums };
-var collectables = { ... level1.collectables };
+var lastLevelScore = 50;
+var currentLevel = 2;
+var eagles = {};
+var opossums = {};
+var collectables = {};
+
+if (currentLevel === 1) {
+    eagles = {...level1.eagles};
+    opossums = {...level1.opossums};
+    collectables = {...level1.collectables};
+} else {
+    eagles = {...level2.eagles};
+    opossums = {...level2.opossums};
+    collectables = {...level2.collectables};
+}
 
 app.use(express.static(__dirname + '/public'));
 
@@ -185,8 +227,8 @@ io.on('connection', function (socket) {
     // create a new player and add it to our players object
     players[socket.id] = {
         rotation: 0,
-        x: 80,
-        y: 224 - 16,
+        x: currentLevel === 1 ? level1.spawnPoint.x : level2.spawnPoint.x,
+        y: currentLevel === 1 ? level1.spawnPoint.y : level2.spawnPoint.y,
         playerId: socket.id,
         flipX: false,
         currentAnim: { key: socket.handshake.query.characterType + '-idle' },
@@ -196,6 +238,7 @@ io.on('connection', function (socket) {
     };
 
     // send the players object to the new player
+    socket.emit('currentLevel', currentLevel);
     socket.emit('currentPlayers', players);
     socket.emit('currentEagles', eagles);
     socket.emit('currentOpossums', opossums);
@@ -227,6 +270,19 @@ io.on('connection', function (socket) {
 
         // emit a message to all players about the player that moved
         socket.broadcast.emit('playerMoved', players[socket.id]);
+
+        if (currentLevel === 1 && level1.isLevelCompleted()) {
+            io.emit('levelCompleted');
+
+            eagles = { ... level2.eagles };
+            opossums = { ... level2.opossums };
+            collectables = { ... level2.collectables };
+
+            currentLevel += 1;
+            lastLevelScore = score;
+        } else if (currentLevel === 2 && level2.isLevelCompleted()) {
+            io.emit('gameCompleted');
+        }
     });
 
     socket.on('killEagle', function (eagleData) {
@@ -256,11 +312,21 @@ io.on('connection', function (socket) {
 
         players = {};
 
-        score = 0;
+        if (currentLevel === 1) {
+            score = 0;
+        } else {
+            score = lastLevelScore;
+        }
 
-        eagles = { ... level1.eagles };
-        opossums = { ... level1.opossums };
-        collectables = { ... level1.collectables };
+        if (currentLevel === 1) {
+            eagles = {...level1.eagles};
+            opossums = {...level1.opossums};
+            collectables = {...level1.collectables};
+        } else {
+            eagles = {...level2.eagles};
+            opossums = {...level2.opossums};
+            collectables = {...level2.collectables};
+        }
     });
 
     socket.on('collect', function (collectData) {
