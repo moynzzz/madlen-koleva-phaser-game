@@ -206,7 +206,8 @@ var Game = new Phaser.Class({
 
         this.socket = io('http://simeonkolev.com:8081/', { query: "playerName=" + encodeURIComponent(playerName) + "&characterType=" + encodeURIComponent(characterType) });
         this.otherPlayers = this.physics.add.group({
-            allowGravity: false
+            allowGravity: false,
+            immovable: true,
         });
         this.eagles = this.physics.add.group({
             immovable: true,
@@ -623,7 +624,7 @@ var Game = new Phaser.Class({
                 this.player.body.setSize(15, 19);
                 this.player.body.setOffset(9, 12);
             } else {
-                this.player.body.setSize(17, 24);
+                this.player.body.setSize(19, 24);
                 this.player.body.setOffset(39, 24);
             }
         }
@@ -808,6 +809,8 @@ var Game = new Phaser.Class({
 
         otherPlayer.playerId = playerInfo.playerId;
         otherPlayer.anims.play(playerInfo.currentAnim.key, true);
+        otherPlayer.body.allowGravity = false;
+        otherPlayer.body.immovable = true;
 
         this.physics.add.collider(this.worldLayer, otherPlayer);
 
