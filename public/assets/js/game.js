@@ -728,7 +728,9 @@ var Game = new Phaser.Class({
         });
     },
     removeLive: function () {
-        var live = this.lives.children.entries[this.lives.children.entries.length - 1];
+        var live = this.lives.getLast();
+
+        this.lives.remove(live);
 
         live.destroy();
 
