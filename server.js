@@ -63,7 +63,6 @@ var level1 = {
         "30": {id: 30, x: 1792, y: 400, type: 'gem'},
         "31": {id: 31, x: 1792, y: 544, type: 'gem'},
         "32": {id: 32, x: 1920, y: 496, type: 'gem'},
-        "33": {id: 33, x: 2224, y: 256, type: 'gem'},
         "34": {id: 34, x: 2176, y: 304, type: 'gem'},
         "35": {id: 35, x: 2144, y: 384, type: 'gem'},
         "36": {id: 36, x: 2176, y: 448, type: 'gem'},
@@ -80,12 +79,26 @@ var level1 = {
         "47": {id: 47, x: 1648, y: 256, type: 'acorn'},
         "48": {id: 48, x: 2320, y: 528, type: 'acorn'},
     },
+    locks: {
+
+    },
 };
 
 var level2 = {
     spawnPoint: {
         x: 96,
         y: 496,
+    },
+    isLevelCompleted: function() {
+        var allPlayersInHouse = true;
+
+        Object.keys(players).forEach(function (id) {
+            if (players[id].x >= 2960 && players[id].x <= 3040 && players[id].y <= 347) {} else {
+                allPlayersInHouse = false;
+            }
+        });
+
+        return allPlayersInHouse;
     },
     eagles: {
         "1": { id: 1, x: 240, y: 272, minY: 192, maxY: 272, direction: "up", flipX: false },
@@ -182,16 +195,124 @@ var level2 = {
         "75": {id: 75, x: 2192, y: 160, type: 'acorn'},
         "76": {id: 76, x: 2386, y: 604, type: 'acorn'},
     },
-    isLevelCompleted: function() {
-        var allPlayersInHouse = true;
-
-        Object.keys(players).forEach(function (id) {
-            if (players[id].x >= 2960 && players[id].x <= 3040 && players[id].y <= 347) {} else {
-                allPlayersInHouse = false;
-            }
-        });
-
-        return allPlayersInHouse;
+    locks: {
+        "999": {
+            first: {x: 28, y: 31},
+            second: {x: 28, y: 31},
+            removes: [
+                {x: 17, y: 32},
+                {x: 18, y: 32},
+                {x: 19, y: 32},
+                {x: 20, y: 32},
+                {x: 21, y: 32},
+                {x: 22, y: 32},
+                {x: 23, y: 32},
+                {x: 24, y: 32},
+            ],
+            camera: {x: 21, y: 32},
+        },
+        "1": {
+            first: {x: 28, y: 31},
+            second: {x: 13, y: 47},
+            removes: [
+                {x: 31, y: 48},
+                {x: 32, y: 48},
+                {x: 33, y: 48},
+                {x: 34, y: 48},
+            ],
+            camera: {x: 33, y: 48},
+        },
+        "2": {
+            first: {x: 16, y: 62},
+            second: {x: 47, y: 47},
+            removes: [
+                {x: 49, y: 43},
+                {x: 49, y: 44},
+                {x: 49, y: 45},
+                {x: 49, y: 46},
+                {x: 49, y: 47},
+            ],
+            camera: {x: 50, y: 45},
+        },
+        "3": {
+            first: {x: 59, y: 56},
+            second: {x: 87, y: 31},
+            removes: [
+                {x: 35, y: 27},
+                {x: 35, y: 28},
+                {x: 35, y: 29},
+                {x: 35, y: 30},
+                {x: 35, y: 31},
+                {x: 17, y: 32},
+                {x: 18, y: 32},
+                {x: 19, y: 32},
+                {x: 20, y: 32},
+                {x: 21, y: 32},
+                {x: 22, y: 32},
+                {x: 23, y: 32},
+                {x: 24, y: 32},
+            ],
+            camera: {x: 36, y: 29},
+        },
+        "4": {
+            first: {x: 17, y: 36},
+            second: {x: 24, y: 36},
+            removes: [
+                {x: 23, y: 18},
+                {x: 24, y: 18},
+                {x: 25, y: 18},
+                {x: 26, y: 18},
+                {x: 27, y: 18},
+            ],
+            camera: {x: 26, y: 19},
+        },
+        "5": {
+            first: {x: 91, y: 17},
+            second: {x: 104, y: 17},
+            removes: [
+                {x: 98, y: 18},
+                {x: 99, y: 18},
+                {x: 100, y: 18},
+                {x: 101, y: 18},
+                {x: 107, y: 18},
+                {x: 108, y: 18},
+                {x: 109, y: 18},
+                {x: 110, y: 18},
+            ],
+            camera: {x: 104, y: 18},
+        },
+        "6": {
+            first: {x: 109, y: 34},
+            second: {x: 122, y: 17},
+            removes: [
+                {x: 116, y: 18},
+                {x: 117, y: 18},
+                {x: 118, y: 18},
+                {x: 119, y: 18},
+                {x: 125, y: 18},
+                {x: 126, y: 18},
+                {x: 127, y: 18},
+                {x: 128, y: 18},
+            ],
+            camera: {x: 122, y: 18},
+        },
+        "7": {
+            first: {x: 147, y: 46},
+            second: {x: 174, y: 39},
+            removes: [
+                {x: 147, y: 18},
+                {x: 148, y: 18},
+                {x: 149, y: 18},
+                {x: 150, y: 18},
+                {x: 151, y: 18},
+                {x: 152, y: 18},
+                {x: 178, y: 22},
+                {x: 179, y: 22},
+                {x: 180, y: 22},
+                {x: 181, y: 22},
+            ],
+            camera: {x: 150, y: 19},
+        },
     },
 };
 
@@ -206,15 +327,19 @@ var currentLevel = 2;
 var eagles = {};
 var opossums = {};
 var collectables = {};
+var locks = {};
+var unlockedRegions = [];
 
 if (currentLevel === 1) {
     eagles = {...level1.eagles};
     opossums = {...level1.opossums};
     collectables = {...level1.collectables};
+    locks = {...level1.locks};
 } else {
     eagles = {...level2.eagles};
     opossums = {...level2.opossums};
     collectables = {...level2.collectables};
+    locks = {...level2.locks};
 }
 
 app.use(express.static(__dirname + '/public'));
@@ -239,6 +364,7 @@ io.on('connection', function (socket) {
 
     // send the players object to the new player
     socket.emit('currentLevel', currentLevel);
+    socket.emit('unlockedRegions', unlockedRegions);
     socket.emit('currentPlayers', players);
     socket.emit('currentEagles', eagles);
     socket.emit('currentOpossums', opossums);
@@ -283,6 +409,14 @@ io.on('connection', function (socket) {
         } else if (currentLevel === 2 && level2.isLevelCompleted()) {
             io.emit('gameCompleted');
         }
+
+        var unlockRegions = getUnlockRegions();
+
+        if (unlockRegions.regions.length > 0) {
+            unlockedRegions.push(unlockRegions.regions);
+
+            io.emit('unlockRegions', unlockRegions);
+        }
     });
 
     socket.on('killEagle', function (eagleData) {
@@ -322,15 +456,23 @@ io.on('connection', function (socket) {
             eagles = {...level1.eagles};
             opossums = {...level1.opossums};
             collectables = {...level1.collectables};
+            locks = {...level1.locks};
         } else {
             eagles = {...level2.eagles};
             opossums = {...level2.opossums};
             collectables = {...level2.collectables};
+            locks = {...level2.locks};
         }
+
+        unlockedRegions = [];
     });
 
     socket.on('collect', function (collectData) {
         var collectable = collectables[collectData.collectable];
+
+        if (!collectable) {
+            return;
+        }
 
         if (collectable.type === 'gem') {
             score += 10;
@@ -370,8 +512,7 @@ io.on('connection', function (socket) {
 var eagleSpeed = 1.9;
 var opossumsSpeed = 1.4;
 
-function moveEnemies()
-{
+function moveEnemies() {
     Object.keys(eagles).forEach(function (id) {
         if (eagles[id].direction === "up") {
             eagles[id].y -= eagleSpeed;
@@ -413,6 +554,45 @@ function moveEnemies()
 }
 
 setInterval(moveEnemies, 1000 / 30);
+
+function getUnlockRegions() {
+    var regions = [];
+    var camera = null;
+
+    Object.keys(locks).forEach(function (lockId) {
+        var isAnyPlayerOnFirstLock = false;
+        var isAnyPlayerOnSecondLock = false;
+
+        Object.keys(players).forEach(function (playerId) {
+            var playerX = players[playerId].x;
+            var playerY = players[playerId].y;
+            var firstX = locks[lockId].first.x * 16;
+            var firstY = locks[lockId].first.y * 16;
+            var secondX = locks[lockId].second.x * 16;
+            var secondY = locks[lockId].second.y * 16;
+
+            if (playerX >= firstX && playerX <= firstX + 16 && playerY >= firstY && playerY <= firstY + 16) {
+                isAnyPlayerOnFirstLock = true;
+            }
+
+            if (playerX >= secondX && playerX <= secondX + 16 && playerY >= secondY && playerY <= secondY + 16) {
+                isAnyPlayerOnSecondLock = true;
+            }
+        });
+
+        if (isAnyPlayerOnFirstLock && isAnyPlayerOnSecondLock) {
+            regions = [...locks[lockId].removes];
+            camera = {...locks[lockId].camera};
+
+            delete locks[lockId];
+        }
+    });
+
+    return {
+        regions: regions,
+        camera: camera,
+    };
+}
 
 server.listen(8081, function () {
     console.log(`Listening on ${server.address().port}`);

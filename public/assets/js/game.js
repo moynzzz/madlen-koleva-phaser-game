@@ -18,6 +18,7 @@ var Boot = new Phaser.Class({
     brannie_btn: null,
     yannie_image: null,
     brannie_image: null,
+    menuBackgroundMusic: null,
     initialize: function Boot() {
         Phaser.Scene.call(this, {key: 'boot', active: true});
     },
@@ -34,8 +35,15 @@ var Boot = new Phaser.Class({
         this.load.image('champion-select-background', 'assets/menu/champion-select-back.png');
         this.load.image('yannie-btn', 'assets/menu/yannie-btn.png');
         this.load.image('brannie-btn', 'assets/menu/brannie-btn.png');
+        this.load.audio('menu_background', 'assets/sound/menu_background.mp3');
     },
     create: function () {
+        this.menuBackgroundMusic = this.sound.add('menu_background', {
+            loop: true,
+            volume: 0.50,
+        });
+        this.menuBackgroundMusic.play();
+
         this.background = this.add.tileSprite(config.scale.width / 2, config.scale.height / 2, config.scale.width, config.scale.height, 'background');
         this.menu_background = this.add.image(config.scale.width / 2, config.scale.height / 2, 'menu-background');
         this.play_btn = this.add.image(config.scale.width / 2, 70, 'play-btn').setInteractive();
@@ -124,6 +132,8 @@ var Boot = new Phaser.Class({
         characterType = character;
         playerName = prompt("Please enter your name", character);
 
+        this.menuBackgroundMusic.stop();
+
         this.scene.start('game');
     }
 });
@@ -146,6 +156,13 @@ var Game = new Phaser.Class({
     playerNames: null,
     lives: null,
     collectables: null,
+    gameBackgroundMusic: null,
+    hurtSound: null,
+    playerHurtSound: null,
+    collectSound: null,
+    unlockSound: null,
+    gameOverSound: null,
+    gameSuccessSound: null,
     initialize: function Game() {
         Phaser.Scene.call(this, {key: 'game'});
     },
@@ -163,9 +180,30 @@ var Game = new Phaser.Class({
         this.load.atlas('opossum', 'assets/opossum/opossum.png', 'assets/opossum/opossum.json');
         this.load.atlas('collectable', 'assets/collectable/collectable.png', 'assets/collectable/collectable.json');
         this.load.spritesheet('heart', 'assets/heart/heart.png', {frameWidth: 17, frameHeight: 17});
+        this.load.audio('collect', 'assets/sound/collect.wav');
+        this.load.audio('hurt', 'assets/sound/hurt.wav');
+        this.load.audio('player_hurt', 'assets/sound/player_hurt.wav');
+        this.load.audio('game_background', 'assets/sound/game_background.mp3');
+        this.load.audio('unlock', 'assets/sound/unlock.wav');
+        this.load.audio('game_over', 'assets/sound/game_over.wav');
+        this.load.audio('game_success', 'assets/sound/game_success.wav');
     },
     create: function () {
         var self = this;
+
+        this.gameBackgroundMusic = this.sound.add('game_background', {
+            loop: true,
+            volume: 0.50,
+        });
+        this.gameBackgroundMusic.play();
+        this.gameBackgroundMusic.setMute(true);
+
+        this.hurtSound = this.sound.add('hurt');
+        this.playerHurtSound = this.sound.add('player_hurt');
+        this.collectSound = this.sound.add('collect');
+        this.unlockSound = this.sound.add('unlock');
+        this.gameOverSound = this.sound.add('game_over');
+        this.gameSuccessSound = this.sound.add('game_success');
 
         this.socket = io('http://localhost:8081/', { query: "playerName=" + encodeURIComponent(playerName) + "&characterType=" + encodeURIComponent(characterType) });
         this.otherPlayers = this.physics.add.group({
@@ -304,6 +342,13 @@ var Game = new Phaser.Class({
             key: 'enemy_death',
             frames: this.anims.generateFrameNames('enemy_death', {prefix: 'enemy-death-', start: 1, end: 6, zeroPad: 1}),
             frameRate: 16,
+            repeat: 0
+        });
+
+        this.anims.create({
+            key: 'unlock_animation',
+            frames: this.anims.generateFrameNames('enemy_death', {prefix: 'enemy-death-', start: 1, end: 6, zeroPad: 1}),
+            frameRate: 8,
             repeat: 0
         });
 
@@ -499,12 +544,23 @@ var Game = new Phaser.Class({
             self.worldLayer = self.map.createDynamicLayer('World', [middle, props, tileset, wallpaper]);
 
             self.worldLayer.setCollisionByExclusion([-1]);
+            self.spikesLayer.setCollisionByExclusion([-1]);
 
             self.physics.world.bounds.width = self.worldLayer.width;
             self.physics.world.bounds.height = self.worldLayer.height;
 
             self.cameras.main.setBounds(0, 0, self.map.widthInPixels, self.map.heightInPixels);
             self.cameras.main.setBackgroundColor('#ccccff');
+        });
+
+        this.socket.on('unlockRegions', function (regions) {
+            self.unlockRegions(regions);
+        });
+
+        this.socket.on('unlockedRegions', function (regions) {
+            for (var i = 0; i < regions.length; i++) {
+                self.setUnlockedRegions(regions[i]);
+            }
         });
     },
     update: function (time, delta) {
@@ -638,6 +694,36 @@ var Game = new Phaser.Class({
         this.player.anims.play(playerInfo.currentAnim.key, true);
 
         this.physics.add.collider(this.worldLayer, this.player);
+
+        this.spikesLayer.setTileIndexCallback(270, function () {
+            if (that.player && !that.player.isHurt) {
+                that.player.isHurt = true;
+
+                that.removeLive();
+
+                setTimeout(function () {
+                    if (that.player) {
+                        that.player.isHurt = false;
+                    }
+                }, 1000);
+            }
+        }, this);
+
+        this.spikesLayer.setTileIndexCallback(322, function () {
+            if (that.player && !that.player.isHurt) {
+                that.player.isHurt = true;
+
+                that.removeLive();
+
+                setTimeout(function () {
+                    if (that.player) {
+                        that.player.isHurt = false;
+                    }
+                }, 1000);
+            }
+        }, this);
+
+        this.physics.add.overlap(this.player, this.spikesLayer);
         this.cameras.main.startFollow(this.player, true);
 
         var text = this.add.text(playerInfo.x, playerInfo.y, playerInfo.playerName);
@@ -663,7 +749,9 @@ var Game = new Phaser.Class({
                     that.removeLive();
 
                     setTimeout(function () {
-                        player.isHurt = false;
+                        if (player) {
+                            player.isHurt = false;
+                        }
                     }, 1000);
                 }
 
@@ -684,7 +772,9 @@ var Game = new Phaser.Class({
                     that.removeLive();
 
                     setTimeout(function () {
-                        player.isHurt = false;
+                        if (player) {
+                            player.isHurt = false;
+                        }
                     }, 1000);
                 }
 
@@ -734,6 +824,8 @@ var Game = new Phaser.Class({
         this.playerNames.add(text);
     },
     createEnemyDeath: function (x, y) {
+        this.hurtSound.play();
+
         var enemyDeath = this.add.sprite(x, y, 'enemy_death');
 
         enemyDeath.play('enemy_death');
@@ -741,8 +833,16 @@ var Game = new Phaser.Class({
             enemyDeath.destroy();
         });
     },
+    createUnlockAnimation: function (x, y) {
+        var unlockAnimation = this.add.sprite(x, y, 'enemy_death');
+
+        unlockAnimation.play('unlock_animation');
+        unlockAnimation.once(Phaser.Animations.Events.SPRITE_ANIMATION_COMPLETE, () => {
+            unlockAnimation.destroy();
+        });
+    },
     removeLive: function () {
-        console.log(this.lives.children);
+        this.playerHurtSound.play();
 
         var live = this.lives.children.entries[this.lives.children.entries.length - 1];
 
@@ -764,6 +864,9 @@ var Game = new Phaser.Class({
         this.player.destroy();
         this.player = null;
 
+        this.gameBackgroundMusic.stop();
+        this.gameOverSound.play();
+
         this.scene.start('game_over');
     },
     nextLevel: function () {
@@ -774,6 +877,9 @@ var Game = new Phaser.Class({
 
         this.player.destroy();
         this.player = null;
+
+        this.gameBackgroundMusic.stop();
+        this.gameSuccessSound.play();
 
         this.scene.start('game_over');
     },
@@ -797,6 +903,8 @@ var Game = new Phaser.Class({
     collect: function (player, collectable) {
         this.socket.emit('collect', { player: player.playerId, collectable: collectable.collectableId});
 
+        this.collectSound.play();
+
         this.createCollectAnimation(collectable.x, collectable.y);
 
         collectable.destroy();
@@ -810,6 +918,53 @@ var Game = new Phaser.Class({
             collect.destroy();
         });
     },
+    unlockRegions: function (unlockData) {
+        var self = this;
+        var regions = unlockData.regions;
+        var camera = unlockData.camera;
+
+        this.cameras.main.stopFollow();
+
+        async function onCameraPositioned() {
+            self.unlockSound.play();
+
+            function sleep(ms) {
+                return new Promise(resolve => setTimeout(resolve, ms));
+            }
+
+            for (var i = 0; i < regions.length; i++) {
+                self.createUnlockAnimation(regions[i].x * 16 + 8, regions[i].y * 16 + 8);
+                self.worldLayer.removeTileAt(regions[i].x, regions[i].y);
+                await sleep(200);
+            }
+
+            self.tweens.add({
+                targets: self.cameras.main,
+                duration: 1000,
+                ease: 'Sine.easeInOut',
+                scrollX: self.player.x - self.cameras.main.width / 2,
+                scrollY: self.player.y - self.cameras.main.height / 2,
+                onComplete: function () {
+                    self.cameras.main.startFollow(self.player, true);
+                },
+            });
+        }
+
+        this.tweens.add({
+            targets: this.cameras.main,
+            duration: 1000,
+            ease: 'Sine.easeInOut',
+            scrollX: camera.x * 16 - this.cameras.main.width / 2,
+            scrollY: camera.y * 16 + 8 - this.cameras.main.height / 2,
+            onComplete: onCameraPositioned,
+        });
+
+    },
+    setUnlockedRegions: function (regions) {
+        for (var i = 0; i < regions.length; i++) {
+            this.worldLayer.removeTileAt(regions[i].x, regions[i].y);
+        }
+    }
 });
 
 var GameOver = new Phaser.Class({
@@ -827,8 +982,15 @@ var GameOver = new Phaser.Class({
         this.load.image('game-over-background', 'assets/menu/game-over-back.png');
         this.load.image('restart-btn', 'assets/menu/restart-btn.png');
         this.load.image('main-menu-btn', 'assets/menu/game-over-exit-btn.png');
+        this.load.audio('menu_background', 'assets/sound/menu_background.mp3');
     },
     create: function () {
+        this.menuBackgroundMusic = this.sound.add('menu_background', {
+            loop: true,
+            volume: 0.50,
+        });
+        this.menuBackgroundMusic.play();
+
         this.background = this.add.tileSprite(config.scale.width / 2, config.scale.height / 2, config.scale.width, config.scale.height, 'background');
         this.game_over_background = this.add.image(config.scale.width / 2, config.scale.height / 2, 'game-over-background');
         this.restart_btn = this.add.image(config.scale.width / 2 - 40, 140, 'restart-btn').setInteractive();
@@ -854,9 +1016,13 @@ var GameOver = new Phaser.Class({
         this.background.tilePositionX += delta * 0.02;
     },
     restartGame: function () {
+        this.menuBackgroundMusic.stop();
+
         this.scene.start('game');
     },
     goToMainMenu: function () {
+        this.menuBackgroundMusic.stop();
+
         this.scene.start('boot');
     }
 });
