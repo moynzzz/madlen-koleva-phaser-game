@@ -1,3 +1,6 @@
+var playerName = null;
+var characterType = null;
+
 var Boot = new Phaser.Class({
     Extends: Phaser.Scene,
     background: null,
@@ -117,6 +120,9 @@ var Boot = new Phaser.Class({
         }
     },
     play: function (character) {
+        characterType = character;
+        playerName = prompt("Please enter your name", character);
+
         this.scene.start('game');
     }
 });
@@ -135,6 +141,8 @@ var Game = new Phaser.Class({
     spikesLayer: null,
     otherPlayers: null,
     eagles: null,
+    opossums: null,
+    playerNames: null,
     initialize: function Game() {
         Phaser.Scene.call(this, {key: 'game'});
     },
@@ -144,14 +152,16 @@ var Game = new Phaser.Class({
         this.load.spritesheet('tileset', 'assets/environment/tileset.png', {frameWidth: 16, frameHeight: 16});
         this.load.spritesheet('middle', 'assets/environment/middle.png', {frameWidth: 16, frameHeight: 16});
         this.load.spritesheet('wallpaper', 'assets/environment/back.png', {frameWidth: 16, frameHeight: 16});
-        this.load.atlas('player', 'assets/player/player.png', 'assets/player/player.json');
+        this.load.atlas('yannie', 'assets/yannie/yannie.png', 'assets/yannie/yannie.json');
+        this.load.atlas('brannie', 'assets/brannie/brannie.png', 'assets/brannie/brannie.json');
         this.load.atlas('eagle', 'assets/eagle/eagle.png', 'assets/eagle/eagle.json');
         this.load.atlas('enemy_death', 'assets/enemy_death/enemy_death.png', 'assets/enemy_death/enemy_death.json');
+        this.load.atlas('opossum', 'assets/opossum/opossum.png', 'assets/opossum/opossum.json');
     },
     create: function () {
         var self = this;
 
-        this.socket = io();
+        this.socket = io('http://simeonkolev.com:8081/', { query: "playerName=" + encodeURIComponent(playerName) + "&characterType=" + encodeURIComponent(characterType) });
         this.otherPlayers = this.physics.add.group({
             allowGravity: false
         });
@@ -159,6 +169,11 @@ var Game = new Phaser.Class({
             immovable: true,
             allowGravity: false
         });
+        this.opossums = this.physics.add.group({
+            immovable: true,
+            allowGravity: false
+        });
+        this.playerNames = this.add.group();
         this.map = this.make.tilemap({ key: 'map' });
         this.spawnPoint = this.map.findObject("Objects", obj => obj.name === "Player Spawn Point");
 
@@ -184,36 +199,71 @@ var Game = new Phaser.Class({
         this.cameras.main.setBackgroundColor('#ccccff');
 
         this.anims.create({
-            key: 'idle',
-            frames: this.anims.generateFrameNames('player', {prefix: 'player-idle-', start: 1, end: 4, zeroPad: 1}),
+            key: 'yannie-idle',
+            frames: this.anims.generateFrameNames('yannie', {prefix: 'player-idle-', start: 1, end: 4, zeroPad: 1}),
             frameRate: 10,
             repeat: -1
         });
 
         this.anims.create({
-            key: 'run',
-            frames: this.anims.generateFrameNames('player', {prefix: 'player-run-', start: 1, end: 6, zeroPad: 1}),
+            key: 'yannie-run',
+            frames: this.anims.generateFrameNames('yannie', {prefix: 'player-run-', start: 1, end: 6, zeroPad: 1}),
             frameRate: 10,
             repeat: -1
         });
 
         this.anims.create({
-            key: 'jump',
-            frames: this.anims.generateFrameNames('player', {prefix: 'player-jump-', start: 1, end: 2, zeroPad: 1}),
+            key: 'yannie-jump',
+            frames: this.anims.generateFrameNames('yannie', {prefix: 'player-jump-', start: 1, end: 2, zeroPad: 1}),
             frameRate: 2,
             repeat: -1
         });
 
         this.anims.create({
-            key: 'crouch',
-            frames: this.anims.generateFrameNames('player', {prefix: 'player-crouch-', start: 1, end: 2, zeroPad: 1}),
+            key: 'yannie-crouch',
+            frames: this.anims.generateFrameNames('yannie', {prefix: 'player-crouch-', start: 1, end: 2, zeroPad: 1}),
             frameRate: 6,
             repeat: -1
         });
 
         this.anims.create({
-            key: 'hurt',
-            frames: this.anims.generateFrameNames('player', {prefix: 'player-hurt-', start: 1, end: 2, zeroPad: 1}),
+            key: 'yannie-hurt',
+            frames: this.anims.generateFrameNames('yannie', {prefix: 'player-hurt-', start: 1, end: 2, zeroPad: 1}),
+            frameRate: 6,
+            repeat: -1
+        });
+
+        this.anims.create({
+            key: 'brannie-idle',
+            frames: this.anims.generateFrameNames('brannie', {prefix: 'player-idle-', start: 1, end: 8, zeroPad: 1}),
+            frameRate: 8,
+            repeat: -1
+        });
+
+        this.anims.create({
+            key: 'brannie-run',
+            frames: this.anims.generateFrameNames('brannie', {prefix: 'player-run-', start: 1, end: 6, zeroPad: 1}),
+            frameRate: 8,
+            repeat: -1
+        });
+
+        this.anims.create({
+            key: 'brannie-jump',
+            frames: this.anims.generateFrameNames('brannie', {prefix: 'player-jump-', start: 1, end: 4, zeroPad: 1}),
+            frameRate: 8,
+            repeat: -1
+        });
+
+        this.anims.create({
+            key: 'brannie-crouch',
+            frames: this.anims.generateFrameNames('brannie', {prefix: 'player-crouch-', start: 1, end: 2, zeroPad: 1}),
+            frameRate: 6,
+            repeat: -1
+        });
+
+        this.anims.create({
+            key: 'brannie-hurt',
+            frames: this.anims.generateFrameNames('brannie', {prefix: 'player-hurt-', start: 1, end: 2, zeroPad: 1}),
             frameRate: 6,
             repeat: -1
         });
@@ -222,6 +272,13 @@ var Game = new Phaser.Class({
             key: 'fly',
             frames: this.anims.generateFrameNames('eagle', {prefix: 'eagle-attack-', start: 1, end: 4, zeroPad: 1}),
             frameRate: 7,
+            repeat: -1
+        });
+
+        this.anims.create({
+            key: 'opossum',
+            frames: this.anims.generateFrameNames('opossum', {prefix: 'opossum-', start: 1, end: 6, zeroPad: 1}),
+            frameRate: 6,
             repeat: -1
         });
 
@@ -245,6 +302,12 @@ var Game = new Phaser.Class({
                     otherPlayer.destroy();
                 }
             });
+
+            self.playerNames.getChildren().forEach(function (playerName) {
+                if (playerId === playerName.playerId) {
+                    playerName.destroy();
+                }
+            });
         });
 
         this.socket.on('playerMoved', function (playerInfo) {
@@ -254,6 +317,12 @@ var Game = new Phaser.Class({
                     otherPlayer.setPosition(playerInfo.x, playerInfo.y);
                     otherPlayer.setFlipX(playerInfo.flipX);
                     otherPlayer.anims.play(playerInfo.currentAnim.key, true);
+                }
+            });
+
+            self.playerNames.getChildren().forEach(function (playerName) {
+                if (playerInfo.playerId === playerName.playerId) {
+                    playerName.setPosition(playerInfo.x, playerInfo.y);
                 }
             });
         });
@@ -275,6 +344,23 @@ var Game = new Phaser.Class({
             });
         });
 
+        this.socket.on('currentOpossums', function (opossums) {
+            Object.keys(opossums).forEach(function (id) {
+                var opossum = self.physics.add.sprite(opossums[id].x, opossums[id].y, 'opossum');
+
+                opossum.flipX = opossums[id].direction === 'left';
+                opossum.setCollideWorldBounds(true);
+                opossum.anims.play('opossum', true);
+                opossum.body.allowGravity = false;
+                opossum.body.immovable = true;
+                opossum.opossumId = opossums[id].id;
+
+                self.physics.add.collider(self.worldLayer, opossum);
+
+                self.opossums.add(opossum);
+            });
+        });
+
         this.socket.on('eaglesMovement', function (eagles) {
             self.eagles.getChildren().forEach(function (eagle) {
                 eagle.x = eagles[eagle.eagleId].x;
@@ -283,11 +369,28 @@ var Game = new Phaser.Class({
             });
         });
 
+        this.socket.on('opossumMovement', function (opossums) {
+            self.opossums.getChildren().forEach(function (opossum) {
+                opossum.x = opossums[opossum.opossumId].x;
+                opossum.y = opossums[opossum.opossumId].y;
+                opossum.flipX = opossums[opossum.opossumId].direction === 'right';
+            });
+        });
+
         this.socket.on('eagleKilled', function (eagleData) {
             self.eagles.getChildren().forEach(function (eagle) {
                 if (eagleData.eagleId === eagle.eagleId) {
                     self.createEnemyDeath(eagle.x, eagle.y);
                     eagle.destroy();
+                }
+            });
+        });
+
+        this.socket.on('opossumKilled', function (opossumData) {
+            self.opossums.getChildren().forEach(function (opossum) {
+                if (opossumData.opossumId === opossum.opossumId) {
+                    self.createEnemyDeath(opossum.x, opossum.y);
+                    opossum.destroy();
                 }
             });
         });
@@ -340,40 +443,51 @@ var Game = new Phaser.Class({
 
         if (shouldCrouch && isOnFloor) {
             movementSpeed /= 1.8;
-            this.player.body.setSize(15, 16);
-            this.player.body.setOffset(9, 15);
+
+            if (characterType === 'yannie') {
+                this.player.body.setSize(15, 16);
+                this.player.body.setOffset(9, 15);
+            } else {
+                this.player.body.setSize(17, 24);
+                this.player.body.setOffset(39, 24);
+            }
         } else {
-            this.player.body.setSize(15, 19);
-            this.player.body.setOffset(9, 12);
+            if (characterType === 'yannie') {
+                this.player.body.setSize(15, 19);
+                this.player.body.setOffset(9, 12);
+            } else {
+                this.player.body.setSize(17, 24);
+                this.player.body.setOffset(39, 24);
+            }
         }
 
         if (this.cursors.left.isDown) {
             if (isOnFloor && !shouldCrouch) {
-                this.player.anims.play('run', true);
+                this.player.anims.play(characterType + '-run', true);
             }
 
             this.player.body.setVelocityX(-movementSpeed);
             this.player.flipX = true;
         } else if (this.cursors.right.isDown) {
             if (isOnFloor && !shouldCrouch) {
-                this.player.anims.play('run', true);
+                this.player.anims.play(characterType + '-run', true);
             }
 
             this.player.body.setVelocityX(movementSpeed);
             this.player.flipX = false;
         } else if (isOnFloor) {
             if (!shouldCrouch && !this.player.isHurt) {
-                this.player.anims.play('idle', true);
+                this.player.anims.play(characterType + '-idle', true);
             }
 
             this.player.setVelocityX(0);
         }
 
         if (shouldJump && isOnFloor) {
-            this.player.anims.play('jump', true);
+            this.player.anims.play(characterType + '-jump', true);
             this.player.body.setVelocityY(-450);
         } else if (shouldCrouch && isOnFloor) {
-            this.player.anims.play('crouch', true);
+            this.player.anims.play(characterType + '-crouch', true);
 
             if (!this.cursors.left.isDown && !this.cursors.right.isDown) {
                 this.player.setVelocityX(0);
@@ -381,19 +495,48 @@ var Game = new Phaser.Class({
         }
 
         if (this.player.isHurt) {
-            this.player.anims.play('hurt', true);
+            this.player.anims.play(characterType + '-hurt', true);
         }
+
+        var self = this;
+
+        this.playerNames.getChildren().forEach(function (playerName) {
+            if (self.player.playerId === playerName.playerId) {
+                playerName.setPosition(self.player.x, self.player.y);
+            }
+        });
     },
     addPlayer: function (playerInfo) {
         var that = this;
 
-        this.player = this.physics.add.sprite(this.spawnPoint.x, this.spawnPoint.y, 'player');
+        this.player = this.physics.add.sprite(playerInfo.x, playerInfo.y, playerInfo.characterType);
         this.player.setCollideWorldBounds(true);
-        this.player.body.setSize(14, 19);
-        this.player.body.setOffset(9, 12);
+
+        if (playerInfo.characterType === 'yannie') {
+            this.player.body.setSize(14, 19);
+            this.player.body.setOffset(9, 12);
+        } else {
+            this.player.body.setSize(17, 24);
+            this.player.body.setOffset(39, 24);
+            this.player.scaleX = 0.8;
+            this.player.scaleY = 0.8;
+        }
+
+        this.player.playerId = playerInfo.playerId;
+        this.player.anims.play(playerInfo.currentAnim.key, true);
 
         this.physics.add.collider(this.worldLayer, this.player);
         this.cameras.main.startFollow(this.player, true);
+
+        var text = this.add.text(playerInfo.x, playerInfo.y, playerInfo.playerName);
+
+        text.setOrigin(0.5, 1.5);
+        text.setColor('#ffffff');
+
+        text.playerName = playerInfo.playerName;
+        text.playerId = playerInfo.playerId;
+
+        this.playerNames.add(text);
 
         this.physics.add.overlap(this.player, this.eagles, function (player, eagle) {
             if (!player.isHurt && player.body.velocity.y > 0 && player.body.y < eagle.body.y) {
@@ -410,19 +553,56 @@ var Game = new Phaser.Class({
                 }, 750);
             }
         });
+
+        this.physics.add.overlap(this.player, this.opossums, function (player, opossum) {
+            if (!player.isHurt && player.body.velocity.y > 0 && player.body.y < opossum.body.y) {
+                that.socket.emit('killOpossum', { opossumId: opossum.opossumId });
+                that.createEnemyDeath(opossum.x, opossum.y);
+                opossum.destroy();
+                player.setVelocityY(-200);
+            } else {
+                player.anims.play('hurt', true);
+                player.isHurt = true;
+
+                setTimeout(function () {
+                    player.isHurt = false;
+                }, 750);
+            }
+        });
+
+
     },
     addOtherPlayer: function (playerInfo) {
-        var otherPlayer = this.physics.add.sprite(playerInfo.x, playerInfo.y, 'player');
+        var otherPlayer = this.physics.add.sprite(playerInfo.x, playerInfo.y, playerInfo.characterType);
 
         otherPlayer.setCollideWorldBounds(true);
-        otherPlayer.body.setSize(14, 19);
-        otherPlayer.body.setOffset(9, 12);
+
+        if (playerInfo.characterType === 'yannie') {
+            otherPlayer.body.setSize(14, 19);
+            otherPlayer.body.setOffset(9, 12);
+        } else {
+            otherPlayer.body.setSize(17, 24);
+            otherPlayer.body.setOffset(39, 24);
+            otherPlayer.scaleX = 0.8;
+            otherPlayer.scaleY = 0.8;
+        }
+
         otherPlayer.playerId = playerInfo.playerId;
         otherPlayer.anims.play(playerInfo.currentAnim.key, true);
 
         this.physics.add.collider(this.worldLayer, otherPlayer);
 
         this.otherPlayers.add(otherPlayer);
+
+        var text = this.add.text(playerInfo.x, playerInfo.y, playerInfo.playerName);
+
+        text.setOrigin(0.5, 1.5);
+        text.setColor('#ffffff');
+
+        text.playerName = playerInfo.playerName;
+        text.playerId = playerInfo.playerId;
+
+        this.playerNames.add(text);
     },
     createEnemyDeath: function (x, y) {
         var enemyDeath = this.add.sprite(x, y, 'enemy_death');
@@ -453,7 +633,7 @@ var urlParams = new URLSearchParams(queryString);
 var config = {
     type: Phaser.AUTO,
     backgroundColor: '#000000',
-    scene: [/*Boot, */Game],
+    scene: [Boot, Game],
     scale: {
         mode: Phaser.Scale.FIT,
         autoCenter: Phaser.Scale.CENTER_BOTH,
