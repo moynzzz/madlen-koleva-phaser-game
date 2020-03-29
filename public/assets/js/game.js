@@ -809,6 +809,7 @@ var Game = new Phaser.Class({
         otherPlayer.anims.play(playerInfo.currentAnim.key, true);
 
         this.physics.add.collider(this.worldLayer, otherPlayer);
+        this.physics.add.collider(this.player, otherPlayer);
 
         this.otherPlayers.add(otherPlayer);
 
