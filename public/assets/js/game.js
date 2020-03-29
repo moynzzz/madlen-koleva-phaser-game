@@ -809,8 +809,8 @@ var Game = new Phaser.Class({
             otherPlayer.body.setSize(yannieSizes.idle.size.x, yannieSizes.idle.size.y);
             otherPlayer.body.setOffset(yannieSizes.idle.offset.x, yannieSizes.idle.offset.y);
         } else {
-            this.player.body.setSize(brannieSizes.idle.size.x, brannieSizes.idle.size.y);
-            this.player.body.setOffset(brannieSizes.idle.offset.x, brannieSizes.idle.offset.y);
+            otherPlayer.body.setSize(brannieSizes.idle.size.x, brannieSizes.idle.size.y);
+            otherPlayer.body.setOffset(brannieSizes.idle.offset.x, brannieSizes.idle.offset.y);
             otherPlayer.scaleX = 0.8;
             otherPlayer.scaleY = 0.8;
         }
