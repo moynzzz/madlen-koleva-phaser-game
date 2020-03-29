@@ -801,8 +801,8 @@ var Game = new Phaser.Class({
             otherPlayer.body.setSize(14, 19);
             otherPlayer.body.setOffset(9, 12);
         } else {
-            otherPlayer.body.setSize(17, 24);
-            otherPlayer.body.setOffset(39, 24);
+            otherPlayer.body.setSize(15, 24);
+            otherPlayer.body.setOffset(39, 17);
             otherPlayer.scaleX = 0.8;
             otherPlayer.scaleY = 0.8;
         }
