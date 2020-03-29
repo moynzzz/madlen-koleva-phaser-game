@@ -1,6 +1,14 @@
 var playerName = null;
 var characterType = null;
 var score = null;
+var yannieSizes = {
+    idle: {size: {x: 14, y: 19}, offset: {x: 9, y: 12}},
+    crouch: {size: {x: yannieSizes.idle.size.x, y: yannieSizes.idle.size.y - 3}, offset: {x: yannieSizes.idle.offset.x, y: yannieSizes.idle.offset.y + 3}},
+};
+var brannieSizes = {
+    idle: {size: {x: 17, y: 24}, offset: {x: 39, y: 24}},
+    crouch: {size: {x: brannieSizes.idle.size.x, y: brannieSizes.idle.size.y - 3}, offset: {x: brannieSizes.idle.offset.x, y: brannieSizes.idle.offset.y + 3}},
+};
 
 var Boot = new Phaser.Class({
     Extends: Phaser.Scene,
@@ -613,19 +621,19 @@ var Game = new Phaser.Class({
             movementSpeed /= 1.8;
 
             if (characterType === 'yannie') {
-                this.player.body.setSize(15, 16);
-                this.player.body.setOffset(9, 15);
+                this.player.body.setSize(yannieSizes.crouch.size.x, yannieSizes.crouch.size.y);
+                this.player.body.setOffset(yannieSizes.crouch.offset.x, yannieSizes.crouch.offset.y);
             } else {
-                this.player.body.setSize(17, 24);
-                this.player.body.setOffset(39, 24);
+                this.player.body.setSize(brannieSizes.crouch.size.x, brannieSizes.crouch.size.y);
+                this.player.body.setOffset(brannieSizes.crouch.offset.x, brannieSizes.crouch.offset.y);
             }
         } else {
             if (characterType === 'yannie') {
-                this.player.body.setSize(15, 19);
-                this.player.body.setOffset(9, 12);
+                this.player.body.setSize(yannieSizes.idle.size.x, yannieSizes.idle.size.y);
+                this.player.body.setOffset(yannieSizes.idle.offset.x, yannieSizes.idle.offset.y);
             } else {
-                this.player.body.setSize(19, 24);
-                this.player.body.setOffset(39, 24);
+                this.player.body.setSize(brannieSizes.idle.size.x, brannieSizes.idle.size.y);
+                this.player.body.setOffset(brannieSizes.idle.offset.x, brannieSizes.idle.offset.y);
             }
         }
 
@@ -681,11 +689,11 @@ var Game = new Phaser.Class({
         this.player.setCollideWorldBounds(true);
 
         if (playerInfo.characterType === 'yannie') {
-            this.player.body.setSize(14, 19);
-            this.player.body.setOffset(9, 12);
+            this.player.body.setSize(yannieSizes.idle.size.x, yannieSizes.idle.size.y);
+            this.player.body.setOffset(yannieSizes.idle.offset.x, yannieSizes.idle.offset.y);
         } else {
-            this.player.body.setSize(17, 24);
-            this.player.body.setOffset(39, 24);
+            this.player.body.setSize(brannieSizes.idle.size.x, brannieSizes.idle.size.y);
+            this.player.body.setOffset(brannieSizes.idle.offset.x, brannieSizes.idle.offset.y);
             this.player.scaleX = 0.8;
             this.player.scaleY = 0.8;
         }
@@ -798,11 +806,11 @@ var Game = new Phaser.Class({
         otherPlayer.setCollideWorldBounds(true);
 
         if (playerInfo.characterType === 'yannie') {
-            otherPlayer.body.setSize(14, 19);
-            otherPlayer.body.setOffset(9, 12);
+            otherPlayer.body.setSize(yannieSizes.idle.size.x, yannieSizes.idle.size.y);
+            otherPlayer.body.setOffset(yannieSizes.idle.offset.x, yannieSizes.idle.offset.y);
         } else {
-            otherPlayer.body.setSize(15, 24);
-            otherPlayer.body.setOffset(39, 17);
+            this.player.body.setSize(brannieSizes.idle.size.x, brannieSizes.idle.size.y);
+            this.player.body.setOffset(brannieSizes.idle.offset.x, brannieSizes.idle.offset.y);
             otherPlayer.scaleX = 0.8;
             otherPlayer.scaleY = 0.8;
         }
