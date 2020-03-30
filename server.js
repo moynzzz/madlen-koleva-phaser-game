@@ -382,11 +382,12 @@ var players = {};
 var score = 0;
 var lastLevelScore = 0;
 var currentLevel = 1;
+var unlockedRegions = [];
+
 var eagles = {};
 var opossums = {};
 var collectables = {};
 var locks = {};
-var unlockedRegions = [];
 
 if (currentLevel === 1) {
     eagles = {...level1.eagles};
@@ -465,6 +466,7 @@ io.on('connection', function (socket) {
 
             currentLevel += 1;
             lastLevelScore = score;
+            unlockedRegions = [];
         } else if (currentLevel === 2 && level2.isLevelCompleted()) {
             io.emit('gameCompleted');
 
@@ -488,8 +490,10 @@ io.on('connection', function (socket) {
                     collectables = { ...level1.collectables };
                     locks = {...level1.locks};
 
-                    currentLevel = 1;
+                    score = 0;
                     lastLevelScore = 0;
+                    currentLevel = 1;
+                    unlockedRegions = [];
                 }
             );
         }
