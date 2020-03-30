@@ -147,10 +147,8 @@ var level1 = {
 
 var level2 = {
     spawnPoint: {
-        // x: 96,
-        // y: 496,
-        x: 2936,
-        y: 337,
+        x: 96,
+        y: 496,
     },
     isLevelCompleted: function() {
         var allPlayersInHouse = true;
@@ -381,8 +379,8 @@ app.get('/leaderboard', (req, res) => {
 var server = require('http').Server(app);
 var io = require('socket.io').listen(server);
 var players = {};
-var score = 1000;
-var lastLevelScore = 1000;
+var score = 0;
+var lastLevelScore = 0;
 var currentLevel = 2;
 var eagles = {};
 var opossums = {};

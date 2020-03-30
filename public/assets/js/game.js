@@ -312,7 +312,7 @@ var Game = new Phaser.Class({
         this.gameOverSound = this.sound.add('game_over');
         this.gameSuccessSound = this.sound.add('game_success');
 
-        this.socket = io('http://localhost:8081/', { query: "playerName=" + encodeURIComponent(playerName) + "&characterType=" + encodeURIComponent(characterType) });
+        this.socket = io('http://simeonkolev.com:8081/', { query: "playerName=" + encodeURIComponent(playerName) + "&characterType=" + encodeURIComponent(characterType) });
         this.otherPlayers = this.physics.add.group({
             allowGravity: false,
             immovable: true,
