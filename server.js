@@ -1,3 +1,14 @@
+var mysql = require('mysql');
+
+var connection = mysql.createConnection({
+    host     : 'localhost',
+    user     : 'root',
+    password : 'root',
+    database : 'phaser_game'
+});
+
+connection.connect();
+
 var level1 = {
     spawnPoint: {
         x: 80,
@@ -136,14 +147,16 @@ var level1 = {
 
 var level2 = {
     spawnPoint: {
-        x: 96,
-        y: 496,
+        // x: 96,
+        // y: 496,
+        x: 2936,
+        y: 337,
     },
     isLevelCompleted: function() {
         var allPlayersInHouse = true;
 
         Object.keys(players).forEach(function (id) {
-            if (players[id].x >= 2960 && players[id].x <= 3040 && players[id].y >= 245 && players[id].y <= 350) {} else {
+            if (players[id].x >= 2960 && players[id].x <= 3040 && players[id].y >= 245 && players[id].y <= 340) {} else {
                 allPlayersInHouse = false;
             }
         });
@@ -352,11 +365,24 @@ var level2 = {
 
 var express = require('express');
 var app = express();
+
+app.get('/leaderboard', (req, res) => {
+    res.setHeader('Content-Type', 'application/json');
+
+    connection.query(
+        "SELECT * FROM `scores` ORDER BY `score` DESC LIMIT 5",
+        function (error, results, fields) {
+            if (error) throw error;
+            res.end(JSON.stringify(results));
+        }
+    );
+});
+
 var server = require('http').Server(app);
 var io = require('socket.io').listen(server);
 var players = {};
-var score = 0;
-var lastLevelScore = 0;
+var score = 1000;
+var lastLevelScore = 1000;
 var currentLevel = 2;
 var eagles = {};
 var opossums = {};
@@ -434,14 +460,40 @@ io.on('connection', function (socket) {
         if (currentLevel === 1 && level1.isLevelCompleted()) {
             io.emit('levelCompleted');
 
-            eagles = { ... level2.eagles };
-            opossums = { ... level2.opossums };
-            collectables = { ... level2.collectables };
+            eagles = { ...level2.eagles };
+            opossums = { ...level2.opossums };
+            collectables = { ...level2.collectables };
+            locks = {...level2.locks};
 
             currentLevel += 1;
             lastLevelScore = score;
         } else if (currentLevel === 2 && level2.isLevelCompleted()) {
             io.emit('gameCompleted');
+
+            var playerNames = '';
+
+            Object.keys(players).forEach(function (id) {
+                playerNames += players[id].playerName + ' & ';
+            });
+
+            playerNames = playerNames.substring(0, playerNames.length - 3);
+
+            var playerScore = score;
+
+            connection.query(
+                "INSERT INTO `scores` (`name`, `score`) VALUES (?, ?)", [playerNames, playerScore],
+                function (error, results, fields) {
+                    if (error) throw error;
+
+                    eagles = { ...level1.eagles };
+                    opossums = { ...level1.opossums };
+                    collectables = { ...level1.collectables };
+                    locks = {...level1.locks};
+
+                    currentLevel = 1;
+                    lastLevelScore = 0;
+                }
+            );
         }
 
         var unlockRegions = getUnlockRegions();
