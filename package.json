@@ -19,7 +19,7 @@
   },
   "homepage": "https://github.com/moynzzz/madlen-koleva-phaser-game#readme",
   "dependencies": {
-    "express": "^4.17.1",
+    "express": "^4.18.2",
     "mysql": "^2.18.1",
     "socket.io": "^2.3.0"
   }
